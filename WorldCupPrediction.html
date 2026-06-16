@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>定期購服務遷移計劃</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F7F6F3;
+    --surface: #FFFFFF;
+    --surface2: #F2F1EE;
+    --border: #E4E2DC;
+    --border-strong: #C8C6BE;
+    --text: #1A1917;
+    --text-2: #4A4845;
+    --text-3: #888780;
+
+    --teal-bg: #E1F5EE;
+    --teal-border: #5DCAA5;
+    --teal-text: #085041;
+    --teal-mid: #0F6E56;
+
+    --amber-bg: #FAEEDA;
+    --amber-border: #FAC775;
+    --amber-text: #633806;
+    --amber-mid: #854F0B;
+
+    --gray-bg: #F1EFE8;
+    --gray-border: #B4B2A9;
+    --gray-text: #444441;
+
+    --blue-bg: #E6F1FB;
+    --blue-border: #85B7EB;
+    --blue-text: #0C447C;
+
+    --purple-bg: #EEEDFE;
+    --purple-border: #AFA9EC;
+    --purple-text: #3C3489;
+    --purple-mid: #534AB7;
+
+    --red-bg: #FCEBEB;
+    --red-border: #F09595;
+    --red-text: #791F1F;
+    --red-mid: #A32D2D;
+
+    --brand: #E72410;
+  }
+
+  body {
+    background: var(--bg);
+    font-family: 'Inter', 'PingFang TC', 'Noto Sans TC', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    padding: 40px 24px 80px;
+  }
+
+  /* ── Header ── */
+  .page-header {
+    max-width: 960px;
+    margin: 0 auto 40px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .brand-stripe {
+    width: 4px;
+    height: 56px;
+    background: var(--brand);
+    border-radius: 2px;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+  .page-title {
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: -.02em;
+    color: var(--text);
+    line-height: 1.2;
+  }
+  .page-subtitle {
+    font-size: 13px;
+    color: var(--text-3);
+    margin-top: 6px;
+    line-height: 1.6;
+  }
+  .phase-badge {
+    margin-left: auto;
+    flex-shrink: 0;
+    background: var(--teal-bg);
+    border: 1px solid var(--teal-border);
+    color: var(--teal-mid);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 99px;
+    white-space: nowrap;
+    align-self: center;
+  }
+
+  /* ── Layout ── */
+  .main { max-width: 960px; margin: 0 auto; display: flex; flex-direction: column; gap: 32px; }
+
+  /* ── Section ── */
+  .section {}
+  .section-eyebrow {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 10px;
+  }
+
+  /* ── Grid rows ── */
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .card.teal  { background: var(--teal-bg);   border-color: var(--teal-border); }
+  .card.amber { background: var(--amber-bg);  border-color: var(--amber-border); }
+  .card.gray  { background: var(--gray-bg);   border-color: var(--gray-border); }
+  .card.blue  { background: var(--blue-bg);   border-color: var(--blue-border); }
+  .card.purple{ background: var(--purple-bg); border-color: var(--purple-border); }
+  .card.red   { background: var(--red-bg);    border-color: var(--red-border); border-width: 1.5px; }
+  .card.faded { opacity: .45; border-style: dashed; border-color: var(--gray-border); background: var(--surface2); }
+
+  .card-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+  .card-title { font-size: 14px; font-weight: 600; line-height: 1.3; }
+  .card-title.teal-t   { color: var(--teal-text); }
+  .card-title.amber-t  { color: var(--amber-text); }
+  .card-title.gray-t   { color: var(--gray-text); }
+  .card-title.blue-t   { color: var(--blue-text); }
+  .card-title.purple-t { color: var(--purple-text); }
+  .card-title.red-t    { color: var(--red-text); }
+  .card-title.muted    { color: var(--text-3); text-decoration: line-through; }
+
+  .card-body { font-size: 12px; line-height: 1.65; color: var(--text-2); }
+  .card-body.teal-b   { color: var(--teal-mid); }
+  .card-body.amber-b  { color: var(--amber-mid); }
+  .card-body.red-b    { color: var(--red-mid); }
+
+  /* ── Badges ── */
+  .badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 9px;
+    border-radius: 99px;
+    letter-spacing: .03em;
+  }
+  .badge.new    { background: var(--teal-bg);   color: var(--teal-mid);   border: 1px solid var(--teal-border); }
+  .badge.keep   { background: var(--amber-bg);  color: var(--amber-mid);  border: 1px solid var(--amber-border); }
+  .badge.drop   { background: var(--gray-bg);   color: var(--text-3);     border: 1px solid var(--gray-border); text-decoration: line-through; }
+  .badge.manual { background: var(--purple-bg); color: var(--purple-text); border: 1px solid var(--purple-border); }
+  .badge.risk   { background: var(--red-bg);    color: var(--red-mid);    border: 1px solid var(--red-border); }
+
+  /* ── Pill tags ── */
+  .pills { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pill {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 11px;
+    border-radius: 99px;
+    background: var(--blue-bg);
+    color: var(--blue-text);
+    border: 1px solid var(--blue-border);
+  }
+  .pill.amber {
+    background: var(--amber-bg);
+    color: var(--amber-text);
+    border-color: var(--amber-border);
+  }
+  .pill.gray {
+    background: var(--gray-bg);
+    color: var(--gray-text);
+    border-color: var(--gray-border);
+  }
+
+  /* ── Direct badge ── */
+  .direct-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--teal-mid);
+    background: #d0f0e4;
+    border-radius: 6px;
+    padding: 3px 9px;
+  }
+
+  /* ── Arrows between sections ── */
+  .arrow-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    padding: 4px 0;
+  }
+  .arrow-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+  .arr-line {
+    width: 1.5px;
+    height: 24px;
+    background: var(--border-strong);
+    position: relative;
+  }
+  .arr-line::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 7px solid var(--border-strong);
+  }
+  .arr-line.dashed {
+    background: repeating-linear-gradient(to bottom, #BA7517 0 4px, transparent 4px 8px);
+  }
+  .arr-line.dashed::after { border-top-color: #BA7517; }
+  .arr-label { font-size: 10px; color: var(--text-3); }
+
+  /* ── Cron pair ── */
+  .cron-pair { display: flex; flex-direction: column; gap: 8px; }
+  .replace-hint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px dashed var(--gray-border);
+    background: var(--surface2);
+    opacity: .5;
+  }
+  .replace-hint .arrow-up { font-size: 13px; color: var(--teal-mid); }
+  .replace-hint-text { font-size: 12px; color: var(--text-3); text-decoration: line-through; }
+  .replace-hint-sub  { font-size: 11px; color: var(--text-3); }
+
+  /* ── DB card ── */
+  .db-bar {
+    background: var(--purple-bg);
+    border: 1.5px solid var(--purple-border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .db-icon {
+    width: 36px; height: 36px;
+    background: var(--purple-mid);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    color: white;
+    font-size: 18px;
+  }
+  .db-title { font-size: 14px; font-weight: 600; color: var(--purple-text); }
+  .db-sub   { font-size: 12px; color: var(--purple-mid); margin-top: 2px; }
+
+  /* ── Divider ── */
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 4px 0;
+  }
+  .divider-line { flex: 1; height: 1px; background: var(--border); }
+  .divider-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-3);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  /* ── Provider switch cards ── */
+  .provider-inner {
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+  .provider-inner.new  { background: var(--teal-bg);  border: 1px solid var(--teal-border); }
+  .provider-inner.old  { background: var(--amber-bg); border: 1px solid var(--amber-border); }
+  .provider-name  { font-size: 13px; font-weight: 600; }
+  .provider-stack { font-size: 11px; margin-top: 2px; line-height: 1.55; }
+  .provider-name.teal-t  { color: var(--teal-text); }
+  .provider-name.amber-t { color: var(--amber-text); }
+  .provider-stack.teal-b  { color: var(--teal-mid); }
+  .provider-stack.amber-b { color: var(--amber-mid); }
+
+  .mini-divider {
+    display: flex; align-items: center; gap: 8px; margin: 8px 0;
+  }
+  .mini-divider .line { flex:1; height:1px; background: var(--border); }
+  .mini-divider .label { font-size: 10px; color: var(--text-3); }
+
+  /* ── Risk card ── */
+  .risk-list { display: flex; flex-direction: column; gap: 8px; }
+  .risk-item { display: flex; gap: 10px; align-items: flex-start; }
+  .risk-dot  { width: 6px; height: 6px; border-radius: 50%; background: #E24B4A; margin-top: 4px; flex-shrink: 0; }
+  .risk-text { font-size: 12px; color: var(--red-mid); line-height: 1.6; }
+  .action-box {
+    background: #F7C1C1;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 12px;
+    color: var(--red-text);
+    line-height: 1.65;
+    margin-top: 4px;
+  }
+  .action-box strong { font-weight: 600; }
+
+  /* ── Footer ── */
+  .footer {
+    max-width: 960px;
+    margin: 48px auto 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; color: var(--text-3);
+  }
+  .legend-dot {
+    width: 10px; height: 10px; border-radius: 3px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Page Header ── -->
+<header class="page-header">
+  <div class="brand-stripe"></div>
+  <div>
+    <div class="page-title">定期購服務遷移計劃</div>
+    <div class="page-subtitle">PHP + MySQL → .NET + React + MySQL（第一階段：後端遷移）<br>Provider 切換 NineV2（.NET + PostgreSQL）</div>
+  </div>
+  <span class="phase-badge">Phase 1 — 後端遷移</span>
+</header>
+
+<div class="main">
+
+  <!-- ══ 呼叫端 ══ -->
+  <div class="section">
+    <div class="section-eyebrow">呼叫端</div>
+    <div class="grid-3">
+
+      <div class="card blue">
+        <div class="pills">
+          <span class="pill">MWeb</span>
+          <span class="pill">OSM</span>
+          <span class="pill">SCM API V2</span>
+        </div>
+        <div class="card-body" style="color:var(--blue-text);">外部系統呼叫定期購 API</div>
+      </div>
+
+      <div class="card amber">
+        <div class="pills">
+          <span class="pill amber">既有 PHP 頁面</span>
+        </div>
+        <div class="card-body amber-b">前端尚未遷移，維持原有 PHP 頁面呼叫</div>
+      </div>
+
+      <div class="card gray">
+        <div class="pills">
+          <span class="pill gray">時間排程</span>
+        </div>
+        <div class="card-body" style="color:var(--text-3);">定期自動觸發，無外部呼叫方</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- arrows -->
+  <div class="arrow-section">
+    <div class="arrow-col"><div class="arr-line"></div><span class="arr-label">呼叫</span></div>
+    <div class="arrow-col"><div class="arr-line dashed"></div><span class="arr-label">呼叫</span></div>
+    <div class="arrow-col"><div class="arr-line"></div><span class="arr-label">觸發</span></div>
+  </div>
+
+  <!-- ══ API / 服務層 ══ -->
+  <div class="section">
+    <div class="section-eyebrow">API / 服務層</div>
+    <div class="grid-3">
+
+      <div class="card teal">
+        <span class="badge new">本次遷移</span>
+        <div class="card-title teal-t">① 定期購 API（.NET）</div>
+        <div class="card-body teal-b">承接 MWeb / OSM / SCM API V2 的請求，業務邏輯以 .NET 重寫</div>
+      </div>
+
+      <div class="card amber">
+        <span class="badge keep">保留不動</span>
+        <div class="card-title amber-t">② 定期購 API（PHP）</div>
+        <div class="card-body amber-b">僅供既有 PHP 頁面呼叫，等前端資源進駐後再遷移</div>
+      </div>
+
+      <div class="cron-pair">
+        <div class="card teal" style="flex:1;">
+          <span class="badge new">本次遷移</span>
+          <div class="card-title teal-t">③ CronJob + NMQ Worker</div>
+          <div class="card-body teal-b">定期排程邏輯以 .NET 重寫</div>
+          <span class="direct-tag">⚡ 直接存取 DB，不透過 API</span>
+        </div>
+        <div class="replace-hint">
+          <span class="arrow-up">↑ 取代</span>
+          <div>
+            <div class="replace-hint-text">④ PHP Cron（舊）</div>
+            <div class="replace-hint-sub">遷移完成後下線廢棄</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- arrows -->
+  <div class="arrow-section">
+    <div class="arrow-col"><div class="arr-line"></div></div>
+    <div class="arrow-col"><div class="arr-line dashed"></div></div>
+    <div class="arrow-col"><div class="arr-line"></div></div>
+  </div>
+
+  <!-- ══ 資料庫 ══ -->
+  <div class="section">
+    <div class="section-eyebrow">資料庫</div>
+    <div class="db-bar">
+      <div class="db-icon">🗄</div>
+      <div>
+        <div class="db-title">MySQL</div>
+        <div class="db-sub">所有路徑共用同一資料庫 — .NET API、PHP API、CronJob 均存取此處</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ Divider ══ -->
+  <div class="section-divider">
+    <div class="divider-line"></div>
+    <div class="divider-label">切換計劃 — Provider 與商店遷移</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- ══ Provider 切換 ══ -->
+  <div class="section">
+    <div class="section-eyebrow">Provider 對應</div>
+    <div class="grid-3">
+
+      <!-- 新商店 -->
+      <div class="card">
+        <span class="badge new">新商店</span>
+        <div class="card-title teal-t">NineV2</div>
+        <div class="provider-inner new" style="margin-top:4px;">
+          <div class="provider-name teal-t">NineV2</div>
+          <div class="provider-stack teal-b">.NET + PostgreSQL</div>
+        </div>
+        <div class="card-body" style="color:var(--teal-mid); font-size:12px;">所有新開商店直接使用 NineV2，無需遷移</div>
+      </div>
+
+      <!-- 既有商店 -->
+      <div class="card">
+        <span class="badge keep">既有商店</span>
+        <div class="provider-inner old">
+          <div class="provider-name amber-t">原 Provider</div>
+          <div class="provider-stack amber-b">PHP + MySQL</div>
+        </div>
+        <div class="mini-divider">
+          <div class="line"></div>
+          <div class="label">人工導入 MySQL → PostgreSQL</div>
+          <div class="line"></div>
+        </div>
+        <div class="provider-inner new">
+          <div class="provider-name teal-t">NineV2</div>
+          <div class="provider-stack teal-b">.NET + PostgreSQL</div>
+        </div>
+        <span class="badge manual" style="align-self:flex-start; margin-top:4px;">人工導入作業</span>
+      </div>
+
+      <!-- 切換風險 -->
+      <div class="card red">
+        <span class="badge risk">切換風險</span>
+        <div class="card-title red-t">遷移期間注意事項</div>
+        <div class="risk-list">
+          <div class="risk-item">
+            <div class="risk-dot"></div>
+            <div class="risk-text">既有商店切換期間，排程中的定期購訂單仍可能被舊 PHP CronJob 觸發</div>
+          </div>
+          <div class="risk-item">
+            <div class="risk-dot"></div>
+            <div class="risk-text">需 PHP 團隊配合，以 byShop 方式關閉各商店的排程觸發</div>
+          </div>
+        </div>
+        <div class="action-box">
+          <strong>Action：</strong>PHP 團隊逐店關閉 CronJob 排程中定期購觸發，配合 NineV2 切換時序進行
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ Footer Legend ══ -->
+  <footer class="footer">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--teal-border);"></div>本次遷移（.NET）</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--amber-border);"></div>PHP 保留</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--gray-border);"></div>廢棄</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--purple-border);"></div>資料庫</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--red-border);"></div>風險項目</div>
+    <div style="margin-left:auto; font-size:11px; color:var(--text-3);">91APP — 定期購服務遷移 Phase 1</div>
+  </footer>
+
+</div>
+</body>
+</html>
