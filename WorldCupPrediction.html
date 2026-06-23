@@ -289,7 +289,7 @@ const CONFIG = {
   DEMO_MODE: false,   // FIFA 官方結構為占位賽程，預設不跑範例賽果
   // ★ Google Apps Script Web App 網址（/exec）。填入後，隊伍／預測／賽果全部改由 Google Sheet 讀取。
   //   留空則使用本檔內建範例資料。
-  API_URL: "https://script.google.com/macros/s/AKfycbwe1Wq_7E0sqwgoi--ybtOTuK21JFeMyMmAhT2NtM2LX8S8uaE09CJlFUEv_ObdR3cO/exec",
+  API_URL: "https://script.google.com/macros/s/AKfycbzRb_RkzVo837ltwmCsMdZZRXkcI4-5-s_M5hVQdeZAjIpyumlY8dpeMyS9a4vspqAV/exec",
   // （備援）舊版 Google Sheet 冠軍預測名單 gviz；僅在 API_URL 留空時使用
   SHEET_ID: "",
   SHEET_NAME: "工作表1",
@@ -411,8 +411,8 @@ let SHEET_PREDICT=null;   // 由 Sheet teams 的 predictable=TRUE 帶入
 let NAME2CODE={};
 Object.keys(TEAMS).forEach(c=>{NAME2CODE[c]=c; NAME2CODE[TEAMS[c].n]=c;});
 
-/* 各隊關鍵球星（皆為 2026 世界盃 26 人名單成員；w=維基條目，用於載入自由授權照片） */
-const PLAYERS={
+/* 各隊關鍵球星（內建版，僅展示模式使用；正式模式由 Sheet players 分頁帶入。w=維基條目，用於載入照片） */
+const BUILTIN_PLAYERS={
   ARG:{blurb:"衛冕冠軍，鋒線群星雲集", list:[
     {name:"梅西 Lionel Messi",role:"前鋒／隊長",note:"第六度征戰世界盃，史上最偉大球員之一，球隊精神領袖。",w:"Lionel Messi"},
     {name:"勞塔羅 Lautaro Martínez",role:"前鋒",note:"國際米蘭射手，禁區終結能力強。",w:"Lautaro Martínez"},
@@ -472,6 +472,8 @@ const PLAYERS={
     {name:"多庫 Jeremy Doku",role:"邊鋒",note:"曼城超快邊鋒，一對一突破驚人。",w:"Jeremy Doku"},
     {name:"盧卡庫 Romelu Lukaku",role:"前鋒",note:"身體強壯的支點型射手。",w:"Romelu Lukaku"}]}
 };
+let PLAYERS=BUILTIN_PLAYERS;            // 正式模式會被 Sheet players 覆寫
+let SHEET_PLAYERS=null, TEAM_BLURB={};  // 由 Sheet 帶入的球星與隊伍簡介
 
 /* =================================================================
    賽程結構 + 每場時間（UTC+8，依 FIFA 官方淘汰賽時程換算 EDT+12h）
@@ -751,7 +753,8 @@ function renderTeamTabs(active){
   Object.keys(PLAYERS).forEach(code=>{
     const b=document.createElement("span");
     b.className="team-tab"+(code===active?" active":"");
-    b.innerHTML=`<span class="tf">${TEAMS[code].f}</span>${TEAMS[code].n}`;
+    const T=TEAMS[code]||{n:code,f:"⚽"};
+    b.innerHTML=`<span class="tf">${T.f}</span>${T.n}`;
     b.onclick=()=>showPlayers(code);
     tabs.appendChild(b);
   });
@@ -759,9 +762,10 @@ function renderTeamTabs(active){
 function showPlayers(code){
   renderTeamTabs(code);
   const data=PLAYERS[code]||{list:[],blurb:""};
+  const T=TEAMS[code]||{n:code,f:"⚽"};
   const body=document.getElementById("playerBody");
-  let html=`<div class="pteam-head"><span class="pf">${TEAMS[code].f}</span>
-    <div><div class="pn">${TEAMS[code].n}</div><div class="pb">${data.blurb||""}</div></div></div>`;
+  let html=`<div class="pteam-head"><span class="pf">${T.f}</span>
+    <div><div class="pn">${T.n}</div><div class="pb">${data.blurb||""}</div></div></div>`;
   if(!data.list.length){ html+=`<div class="empty-note">尚無球星資料。</div>`; }
   const toLoad=[];
   data.list.forEach((p,i)=>{
@@ -932,17 +936,29 @@ async function loadAll(){
     // 1) 隊伍：把 Sheet teams 依 match/pos 覆蓋到固定 FIFA 結構；未填的格子保留組別代號占位
     //    並由 predictable=TRUE 決定「16 強名單」（人氣榜與球星彈窗都跟著它）
     if(Array.isArray(j.teams)&&j.teams.length){
-      REAL_LINEUP={};
+      REAL_LINEUP={}; TEAM_BLURB={};
       const P=[];
       j.teams.forEach(t=>{
         const code=String(t.code||"").trim(); if(!code) return;
         TEAMS[code]={n:String(t.name||code).trim(), f:String(t.flag||"").trim()};
         NAME2CODE[code]=code; NAME2CODE[TEAMS[code].n]=code;
+        if(t.blurb) TEAM_BLURB[code]=String(t.blurb).trim();
         if(t.predictable===true||String(t.predictable).toUpperCase()==="TRUE") P.push(code);
         const m=parseInt(t.match,10), pos=parseInt(t.pos,10);
         if(!isNaN(m)&&!isNaN(pos)) REAL_LINEUP["r0m"+m+"_"+pos]=code;
       });
       SHEET_PREDICT=P;   // 記錄 Sheet 指定的可預測名單（最終由 demo_mode 決定是否採用）
+    }
+    // 1b) 球星 → PLAYERS（依 code 分組；blurb 取自 teams）
+    if(Array.isArray(j.players)){
+      const pm={};
+      j.players.forEach(p=>{
+        const code=String(p.code||"").trim(); if(!code) return;
+        if(!pm[code]) pm[code]={blurb:(TEAM_BLURB[code]||""), list:[]};
+        pm[code].list.push({ name:String(p.name||"").trim(), role:String(p.role||"").trim(),
+                             note:String(p.note||"").trim(), w:String(p.wiki||"").trim() });
+      });
+      SHEET_PLAYERS=pm;
     }
     // 2) 預測 → PRED（依 champion 分組，存「綽號（部門）」；不含 email）
     if(Array.isArray(j.predictions)){
@@ -1015,6 +1031,8 @@ function setNotice(){
   await loadLive();         // 備援：results.json
   // 16 強名單：僅展示模式用內建 16 國；否則嚴格依 Sheet（predictable），沒有則為空
   PREDICT_TEAMS = CONFIG.DEMO_MODE ? BUILTIN_PREDICT.slice() : (SHEET_PREDICT || []);
+  // 球星：展示模式用內建；否則依 Sheet players（沒有則為空）
+  PLAYERS = CONFIG.DEMO_MODE ? BUILTIN_PLAYERS : (SHEET_PLAYERS || {});
   setNotice(); tick();
   await loadPredictions(); loadResults();
   applyResults(); render();

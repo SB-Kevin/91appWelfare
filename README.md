@@ -57,6 +57,10 @@
 **`teams`**（32 強名單＋對戰位置）：`code`｜`name`｜`flag`｜`predictable`｜`match`(0–15)｜`pos`(0/1)
 - `match`/`pos` 決定該隊落在賽程圖哪個 32 強格子（占位 → 真實隊伍）。
 
+**`players`**（各隊關鍵球星，每位一列）：`code`｜`name`｜`role`｜`note`｜`wiki`
+- `code` 對應 `teams.code`（同隊多列）；`wiki`＝維基條目（即時抓照片）。隊伍簡介放 `teams` 的選用欄 `blurb`。
+- 正式模式由此分頁驅動球星；展示模式用內建 16 國。
+
 **`results`**（賽果）：`matchId`(r0m0…r4m0)｜`winner`(代碼)｜`score`("上-下")｜`pk`("上-下"，無則空)
 
 **`meta`**（設定）：`key`｜`value`

@@ -25,6 +25,7 @@ function doGet(e) {
   const data = {
     meta:        readMeta_(),
     teams:       readTable_('teams'),
+    players:     readTable_('players'),
     predictions: readPredictions_(),   // 不含 email
     results:     readResults_()
   };
@@ -148,6 +149,19 @@ function applyWrite_(body) {
       set('match', t.match); set('pos', t.pos);
     });
   }
+  // players（整批覆蓋：清空後重寫，因同隊多列）
+  if (Array.isArray(body.players)) {
+    const psh = SS.getSheetByName('players');
+    const ph = psh.getDataRange().getValues()[0].map(h => String(h).trim());
+    const pc = n => ph.indexOf(n);
+    if (psh.getLastRow() > 1) psh.getRange(2, 1, psh.getLastRow() - 1, psh.getLastColumn()).clearContent();
+    body.players.forEach((p, i) => {
+      const row = i + 2;
+      const set = (f, v) => { if (v !== undefined && pc(f) >= 0) psh.getRange(row, pc(f) + 1).setValue(v); };
+      set('code', p.code); set('name', p.name); set('role', p.role); set('note', p.note); set('wiki', p.wiki);
+    });
+  }
+
   // meta
   if (body.last_updated !== undefined || body.demo_mode !== undefined || body.form_url !== undefined) {
     const meta = SS.getSheetByName('meta');
