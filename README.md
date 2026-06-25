@@ -54,8 +54,8 @@
 - 表單顯示中文隊名，`champion` 存中文隊名或代碼；系統用 `teams` 的 `code↔name` 自動對照。
 - `email` 僅留存對獎用，**不輸出到網頁**。
 
-**`teams`**（32 強名單＋對戰位置）：`code`｜`name`｜`flag`｜`predictable`｜`match`(0–15)｜`pos`(0/1)
-- `match`/`pos` 決定該隊落在賽程圖哪個 32 強格子（占位 → 真實隊伍）。
+**`teams`**（32 強名單＋對戰位置）：`code`｜`name`｜`flag`｜`predictable`｜`match`｜`pos`
+- `match` = **FIFA 場次編號(73–88)**（直接照 FIFA 填）；`pos` = 該場第一隊 0、第二隊 1。例：Match 73「2A vs 加拿大」→ 加拿大 match=73, pos=1。
 
 **`players`**（各隊關鍵球星，每位一列）：`code`｜`name`｜`role`｜`note`｜`wiki`
 - `code` 對應 `teams.code`（同隊多列）；`wiki`＝維基條目（即時抓照片）。隊伍簡介放 `teams` 的選用欄 `blurb`。
