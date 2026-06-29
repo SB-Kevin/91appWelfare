@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🏸 盲填排點系統</title>
+<title>🏓 2026 匹克球大賽</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Oswald:wght@700&display=swap');
   :root {
@@ -151,7 +151,7 @@
 <body>
 
 <div id="login-screen">
-  <div class="login-title">🏸 盲填排點系統</div>
+  <div class="login-title">🏓 2026 匹克球大賽</div>
   <div class="login-sub">選擇角色進入</div>
   <div class="role-cards">
     <div class="role-card black" onclick="selectRole('black')">
@@ -189,7 +189,7 @@
 <div id="app-screen">
   <div class="app-header">
     <div style="display:flex;align-items:center;gap:10px">
-      <span class="app-header-title">🏸 盲填排點</span>
+      <span class="app-header-title">🏓 盲填排點</span>
       <span class="role-tag" id="role-tag"></span>
     </div>
     <div class="header-right">
@@ -251,8 +251,16 @@ async function loadData(){
     const r=await fetch(API+'?action=load',{cache:'no-store',redirect:'follow'});
     const txt=await r.text();
     setSyncStatus('ok');
-    if(!txt||txt==='{}')return defaultData();
-    try{return JSON.parse(txt);}catch(e){return defaultData();}
+    if(!txt||txt==='{}'||txt==='')return defaultData();
+    try{
+      const d=JSON.parse(txt);
+      const def=defaultData();
+      if(!d.black||d.black.length!==6)d.black=def.black;
+      if(!d.white||d.white.length!==6)d.white=def.white;
+      if(!d.revealed||d.revealed.length!==6)d.revealed=def.revealed;
+      if(!d.scores||d.scores.length!==6)d.scores=def.scores;
+      return d;
+    }catch(e){return defaultData();}
   }catch(e){setSyncStatus('error');return defaultData();}
 }
 
