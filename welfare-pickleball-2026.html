@@ -3,214 +3,127 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>🏓 2026 匹克球大賽</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',system-ui,-apple-system,sans-serif;background:#0a0e1a;color:#e2e8f0;min-height:100vh;}
-
-  /* LOGIN */
-  #login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;}
-  .login-title{font-family:'Arial Narrow','Impact',Arial,sans-serif;font-size:2rem;letter-spacing:.1em;margin-bottom:4px;color:#fff;}
-  .login-sub{color:#64748b;font-size:.85rem;margin-bottom:32px;}
-  .role-cards{display:flex;flex-direction:column;gap:12px;width:100%;max-width:340px;}
-  .role-card{border-radius:12px;padding:16px 20px;cursor:pointer;border:2px solid transparent;transition:all .2s;display:flex;align-items:center;gap:14px;}
-  .role-card:hover{transform:translateY(-2px);}
-  .role-card.black{background:#1c2540;border-color:#475569;}
-  .role-card.white{background:#0f1e3a;border-color:#3b82f6;}
-  .role-card.host{background:#130f2a;border-color:#7c3aed;}
-  .role-card.audience{background:#061a12;border-color:#059669;}
-  .role-icon{font-size:1.8rem;}
-  .role-info h3{font-weight:700;font-size:1rem;}
-  .role-info p{font-size:.75rem;color:#64748b;}
-  .role-card.black .role-info h3{color:#94a3b8;}
-  .role-card.white .role-info h3{color:#60a5fa;}
-  .role-card.host  .role-info h3{color:#a78bfa;}
-  .role-card.audience .role-info h3{color:#34d399;}
-
-  /* MODAL */
-  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:100;}
-  .modal{background:#131929;border-radius:16px;padding:28px;width:300px;border:1px solid #2a3558;}
-  .modal h3{margin-bottom:14px;font-size:1.1rem;}
-  .modal input{width:100%;background:#0a0e1a;border:1.5px solid #2a3558;color:#fff;padding:10px 14px;border-radius:8px;font-size:1rem;letter-spacing:.2em;margin-bottom:10px;outline:none;}
-  .modal input:focus{border-color:#3b82f6;}
-  .modal-btns{display:flex;gap:8px;}
-  .btn{padding:9px 20px;border-radius:8px;border:none;cursor:pointer;font-weight:700;font-size:.85rem;transition:opacity .15s;}
-  .btn:hover{opacity:.85;}
-  .btn-primary{background:#3b82f6;color:#fff;}
-  .btn-secondary{background:#1c2540;color:#64748b;}
-  .btn-danger{background:#ef4444;color:#fff;}
-  .error-msg{color:#ef4444;font-size:.78rem;margin-bottom:8px;min-height:18px;}
-
-  /* APP */
-  #app-screen{display:none;min-height:100vh;}
-  .app-header{background:#131929;border-bottom:1px solid #2a3558;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;}
-  .app-header-title{font-family:'Arial Narrow','Impact',Arial,sans-serif;font-size:1.1rem;letter-spacing:.08em;}
-  .role-tag{font-size:.72rem;padding:3px 10px;border-radius:20px;font-weight:700;}
-  .tag-black{background:#475569;color:#e2e8f0;}
-  .tag-white{background:#3b82f6;color:#fff;}
-  .tag-host{background:#7c3aed;color:#fff;}
-  .tag-audience{background:#059669;color:#fff;}
-  .header-right{display:flex;align-items:center;gap:10px;}
-  .sync-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;}
-  .sync-dot.syncing{background:#f59e0b;animation:pulse 1s infinite;}
-  .sync-dot.error{background:#ef4444;}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-  .logout-btn{font-size:.75rem;color:#64748b;cursor:pointer;padding:4px 8px;border-radius:6px;}
-  .logout-btn:hover{color:#e2e8f0;}
-  .app-body{padding:16px;max-width:600px;margin:0 auto;}
-  .section-title{font-size:.7rem;font-weight:700;letter-spacing:.1em;color:#64748b;text-transform:uppercase;margin-bottom:10px;}
-
-  /* POINT CARD */
-  .point-card{background:#131929;border-radius:12px;margin-bottom:12px;overflow:hidden;border:1px solid #2a3558;}
-  .point-header{padding:10px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #2a3558;}
-  .point-header-left h4{font-size:.95rem;font-weight:700;}
-  .point-header-left span{font-size:.72rem;color:#64748b;}
-  .point-status{font-size:.7rem;padding:3px 9px;border-radius:10px;font-weight:700;}
-  .status-open{background:#1a2a1a;color:#22c55e;}
-  .status-locked{background:#2a1a1a;color:#ef4444;}
-  .point-body{padding:14px;}
-  .selected-players{display:flex;gap:8px;flex-wrap:wrap;min-height:40px;padding:8px 10px;background:#0a0e1a;border-radius:8px;margin-bottom:10px;border:1px dashed #2a3558;align-items:center;}
-  .selected-tag{display:flex;align-items:center;gap:5px;background:#1c2540;border-radius:16px;padding:4px 10px;font-size:.8rem;}
-  .selected-tag .rm{color:#ef4444;cursor:pointer;font-weight:900;margin-left:2px;}
-  .player-grid{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px;}
-  .player-chip{padding:5px 11px;border-radius:20px;font-size:.8rem;cursor:pointer;border:1.5px solid #2a3558;background:#1c2540;transition:all .15s;display:flex;align-items:center;gap:5px;}
-  .player-chip:hover{border-color:#64748b;}
-  .chip-sel-b{border-color:#94a3b8!important;background:#1a2235!important;color:#94a3b8;}
-  .chip-sel-w{border-color:#3b82f6!important;background:#0f1e3a!important;color:#60a5fa;}
-  .gender-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Oswald:wght@700&display=swap');
+  :root{
+    --bg:#0a0e1a;--surface:#131929;--surface2:#1c2540;--border:#2a3558;
+    --bt:#94a3b8;--ba:#475569;--wt:#60a5fa;--wa:#3b82f6;
+    --text:#e2e8f0;--muted:#64748b;
+    --ok:#22c55e;--warn:#f59e0b;--err:#ef4444;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+  .hdr{background:var(--surface);border-bottom:1px solid var(--border);padding:11px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:30;}
+  .hdr-title{font-family:'Oswald',sans-serif;font-size:1.05rem;letter-spacing:.07em;}
+  .hdr-right{display:flex;align-items:center;gap:10px;}
+  .sync{width:8px;height:8px;border-radius:50%;background:var(--ok);flex-shrink:0;}
+  .sync.ing{background:var(--warn);animation:blink 1s infinite;}
+  .sync.err{background:var(--err);}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+  .wrap{padding:14px;max-width:960px;margin:0 auto;}
+  .scoreboard{background:var(--surface);border-radius:12px;padding:14px 20px;margin-bottom:14px;display:flex;justify-content:center;align-items:center;gap:20px;border:1px solid var(--border);}
+  .sb-col{text-align:center;}
+  .sb-lbl{font-size:.68rem;color:var(--muted);margin-bottom:2px;}
+  .sb-num{font-family:'Oswald',sans-serif;font-size:2.6rem;font-weight:700;}
+  .sb-b{color:var(--bt);}.sb-w{color:var(--wt);}
+  .sb-vs{font-size:1.3rem;color:var(--border);font-weight:900;}
+  .champ{text-align:center;font-size:.95rem;font-weight:700;color:var(--warn);min-height:22px;margin-bottom:12px;}
+  .pool-wrap{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+  .pool-box{background:var(--surface);border-radius:10px;padding:10px;border:1px solid var(--border);}
+  .pool-title{font-size:.7rem;font-weight:700;letter-spacing:.06em;color:var(--muted);margin-bottom:7px;}
+  .pool-chips{display:flex;flex-wrap:wrap;gap:5px;}
+  .chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:16px;font-size:.78rem;border:1.5px solid var(--border);background:var(--surface2);cursor:grab;user-select:none;transition:all .15s;}
+  .chip:active{cursor:grabbing;}
+  .chip.dragging{opacity:.3;}
+  .chip.used{opacity:.3;border-style:dashed;}
+  .chip.b-sel{border-color:var(--bt);background:#1a2235;color:var(--bt);}
+  .chip.w-sel{border-color:var(--wa);background:#0f1e3a;color:var(--wt);}
+  .chip.pending{border-color:var(--warn);background:#1a1500;color:var(--warn);}
+  .gdot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
   .gm{background:#3b82f6;}.gf{background:#ec4899;}
-  .lock-btn{width:100%;padding:10px;border-radius:8px;border:none;font-weight:700;font-size:.9rem;cursor:pointer;transition:all .2s;}
-  .lock-btn-b{background:#475569;color:#fff;}
-  .lock-btn-w{background:#3b82f6;color:#fff;}
-  .locked-display{padding:12px;background:#0a0e1a;border-radius:8px;text-align:center;}
-  .locked-names{color:#e2e8f0;font-weight:700;font-size:1rem;margin-top:4px;}
-
-  /* HOST */
-  .host-point-card{background:#131929;border-radius:12px;margin-bottom:14px;border:1px solid #2a3558;overflow:hidden;}
-  .host-point-header{padding:10px 16px;background:#1c2540;display:flex;align-items:center;justify-content:space-between;}
-  .host-point-header h4{font-size:.95rem;font-weight:700;}
-  .host-point-body{padding:14px;}
-  .vs-row{display:grid;grid-template-columns:1fr 44px 1fr;gap:8px;align-items:center;margin-bottom:12px;}
-  .team-col{background:#0a0e1a;border-radius:8px;padding:10px;text-align:center;min-height:54px;display:flex;flex-direction:column;justify-content:center;}
-  .team-col-label{font-size:.65rem;color:#64748b;margin-bottom:4px;font-weight:700;letter-spacing:.05em;}
-  .team-col-names{font-size:.88rem;font-weight:700;line-height:1.4;}
-  .waiting-text{font-size:.75rem;color:#64748b;font-style:italic;}
-  .vs-badge{text-align:center;font-weight:900;color:#2a3558;font-size:.9rem;}
-  .publish-btn{width:100%;padding:10px;border-radius:8px;border:none;font-weight:700;font-size:.9rem;cursor:pointer;background:#7c3aed;color:#fff;transition:opacity .2s;}
-  .publish-btn:hover:not(:disabled){opacity:.85;}
-  .publish-btn:disabled{background:#1c2540;color:#64748b;cursor:not-allowed;}
-  .revealed-banner{background:#130f2a;border-radius:8px;padding:10px 14px;text-align:center;border:1px solid #7c3aed;margin-bottom:10px;}
-  .revealed-vs{font-size:.95rem;font-weight:700;color:#a78bfa;}
-  .score-section{display:grid;grid-template-columns:1fr 30px 1fr;gap:10px;align-items:center;}
-  .score-col{display:flex;flex-direction:column;align-items:center;gap:5px;}
-  .score-label{font-size:.65rem;color:#64748b;font-weight:700;display:flex;align-items:center;gap:4px;}
-  .score-val{font-family:'Arial Narrow','Impact',Arial,sans-serif;font-size:2rem;font-weight:700;}
-  .sv-b{color:#94a3b8;}.sv-w{color:#60a5fa;}
-  .score-btns{display:flex;gap:6px;}
-  .sc-btn{width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;font-weight:900;font-size:.9rem;}
-  .sc-minus{background:#1c2540;color:#64748b;}
-  .sc-plus-b{background:#475569;color:#fff;}
-  .sc-plus-w{background:#3b82f6;color:#fff;}
-  .sc-colon{text-align:center;font-size:1.3rem;color:#2a3558;font-weight:900;}
-  .win-tag{background:#14532d;color:#22c55e;font-size:.62rem;padding:2px 6px;border-radius:8px;font-weight:700;}
-  .ls-badge{font-size:.65rem;padding:2px 7px;border-radius:8px;font-weight:700;}
-  .ls-ok{background:#1a3a1a;color:#22c55e;}
-  .ls-wait{background:#2a2a1a;color:#f59e0b;}
-  .lock-status-row{display:flex;gap:6px;align-items:center;}
-
-  /* SCOREBOARD */
-  .total-board{background:#131929;border-radius:12px;padding:16px;margin-bottom:12px;display:flex;justify-content:center;align-items:center;gap:24px;border:1px solid #2a3558;}
-  .total-col{text-align:center;}
-  .total-col-label{font-size:.7rem;color:#64748b;margin-bottom:4px;}
-  .total-col-num{font-family:'Arial Narrow','Impact',Arial,sans-serif;font-size:3rem;font-weight:700;}
-  .total-b{color:#94a3b8;}.total-w{color:#60a5fa;}
-  .total-vs{font-size:1.5rem;color:#2a3558;font-weight:900;}
-  .champion-text{text-align:center;font-size:1rem;font-weight:700;color:#f59e0b;min-height:26px;margin-bottom:10px;}
-
-  /* AUDIENCE */
-  .audience-point{background:#131929;border-radius:12px;margin-bottom:12px;border:1px solid #2a3558;overflow:hidden;}
-  .audience-point-header{padding:10px 14px;background:#1c2540;display:flex;align-items:center;justify-content:space-between;}
-  .audience-point-body{padding:14px;}
-  .audience-vs{display:grid;grid-template-columns:1fr 30px 1fr;gap:8px;align-items:center;margin-bottom:10px;}
-  .audience-team{text-align:center;background:#0a0e1a;border-radius:8px;padding:10px;}
-  .audience-names{font-weight:700;font-size:.9rem;line-height:1.5;}
-  .audience-score{font-family:'Arial Narrow','Impact',Arial,sans-serif;font-size:1.8rem;font-weight:700;}
-  .hidden-banner{padding:12px;text-align:center;color:#64748b;font-size:.85rem;font-style:italic;}
+  .rm{color:var(--err);cursor:pointer;font-weight:900;margin-left:2px;font-size:.82rem;line-height:1;}
+  .rm:hover{color:#fca5a5;}
+  .pt-card{background:var(--surface);border-radius:12px;margin-bottom:10px;border:1px solid var(--border);overflow:hidden;}
+  .pt-hdr{padding:9px 13px;background:var(--surface2);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+  .pt-hdr-l h4{font-size:.92rem;font-weight:700;}
+  .pt-hdr-l span{font-size:.7rem;color:var(--muted);}
+  .badge{font-size:.66rem;padding:2px 8px;border-radius:9px;font-weight:700;}
+  .b-open{background:#1a2a1a;color:var(--ok);}
+  .b-lock{background:#2a1a1a;color:var(--err);}
+  .b-pub{background:#130f2a;color:#a78bfa;}
+  .pt-body{padding:11px 12px;display:grid;grid-template-columns:1fr 70px 1fr;gap:8px;}
+  .slot-col{display:flex;flex-direction:column;gap:5px;}
+  .slot-lbl{font-size:.66rem;font-weight:700;color:var(--muted);letter-spacing:.04em;}
+  .dropzone{min-height:46px;border:2px dashed var(--border);border-radius:8px;padding:5px 7px;display:flex;flex-wrap:wrap;gap:4px;align-items:center;transition:border-color .15s,background .15s;position:relative;cursor:pointer;}
+  .dropzone.hover{border-color:var(--warn);background:rgba(245,158,11,.06);}
+  .dropzone.full{border-color:var(--ok);border-style:solid;}
+  .dropzone.locked{pointer-events:none;opacity:.75;}
+  .dz-hint{font-size:.72rem;color:var(--muted);position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none;white-space:nowrap;}
+  .mid-col{display:flex;flex-direction:column;align-items:center;gap:5px;padding-top:16px;}
+  .vs{font-size:.82rem;font-weight:900;color:var(--border);}
+  .sc-nums{display:flex;align-items:center;gap:5px;justify-content:center;}
+  .sc-n{font-family:'Oswald',sans-serif;font-size:1.5rem;font-weight:700;}
+  .sc-nb{color:var(--bt);}.sc-nw{color:var(--wt);}
+  .sc-col{color:var(--border);font-weight:900;}
+  .sc-btns{display:flex;flex-direction:column;gap:3px;margin-top:4px;}
+  .sc-row{display:flex;gap:3px;justify-content:center;}
+  .sc-btn{width:24px;height:24px;border-radius:50%;border:none;cursor:pointer;font-weight:900;font-size:.8rem;}
+  .sc-mb{background:var(--ba);color:#fff;}.sc-mw{background:var(--wa);color:#fff;}.sc-mn{background:var(--surface2);color:var(--muted);}
+  .win-lbl{font-size:.6rem;padding:2px 5px;border-radius:6px;font-weight:700;}
+  .win-b{background:#14532d;color:var(--ok);}.win-w{background:#0f1e3a;color:var(--wt);}
+  .pt-actions{padding:9px 12px;border-top:1px solid var(--border);display:flex;gap:7px;flex-wrap:wrap;}
+  .act{flex:1;min-width:72px;padding:7px 10px;border-radius:7px;border:none;font-weight:700;font-size:.8rem;cursor:pointer;transition:opacity .15s;}
+  .act:hover:not(:disabled){opacity:.82;}
+  .act:disabled{opacity:.32;cursor:not-allowed;}
+  .a-lock{background:#7c3aed;color:#fff;}
+  .a-unlock{background:var(--surface2);color:var(--warn);border:1px solid var(--warn);}
+  .a-reveal{background:var(--ok);color:#fff;}
+  .sec-title{font-size:.68rem;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:9px;}
+  .reset-btn{width:100%;padding:11px;border-radius:8px;border:none;background:var(--err);color:#fff;font-weight:700;font-size:.88rem;cursor:pointer;margin-top:6px;margin-bottom:22px;}
+  #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:8px 18px;border-radius:20px;font-size:.82rem;opacity:0;transition:opacity .2s;pointer-events:none;z-index:99;border:1px solid var(--border);}
+  #toast.show{opacity:1;}
 </style>
 </head>
 <body>
-
-<div id="login-screen" style="display:flex">
-  <div class="login-title">🏓 2026 匹克球大賽</div>
-  <div class="login-sub">選擇角色進入</div>
-  <div class="role-cards">
-    <div class="role-card black" onclick="selectRole('black')">
-      <div class="role-icon">⚫</div>
-      <div class="role-info"><h3>黑隊隊長</h3><p>秘密填入每點出場名單</p></div>
-    </div>
-    <div class="role-card white" onclick="selectRole('white')">
-      <div class="role-icon">⚪</div>
-      <div class="role-info"><h3>白隊隊長</h3><p>秘密填入每點出場名單</p></div>
-    </div>
-    <div class="role-card host" onclick="selectRole('host')">
-      <div class="role-icon">🎙️</div>
-      <div class="role-info"><h3>主持人</h3><p>公布名單、記錄比分</p></div>
-    </div>
-    <div class="role-card audience" onclick="selectRole('audience')">
-      <div class="role-icon">👀</div>
-      <div class="role-info"><h3>觀眾模式</h3><p>即時觀看比分與已公布名單</p></div>
-    </div>
+<div class="hdr">
+  <div class="hdr-title">🏓 2026 匹克球大賽</div>
+  <div class="hdr-right">
+    <div class="sync" id="sync"></div>
   </div>
 </div>
-
-<div class="modal-overlay" id="pin-modal" style="display:none">
-  <div class="modal">
-    <h3 id="pin-title">輸入密碼</h3>
-    <div class="error-msg" id="pin-error"></div>
-    <input type="password" id="pin-input" placeholder="密碼" autocomplete="off"
-      onkeydown="if(event.key==='Enter')submitPin()">
-    <div class="modal-btns">
-      <button class="btn btn-primary" onclick="submitPin()">進入</button>
-      <button class="btn btn-secondary" onclick="closePin()">取消</button>
-    </div>
+<div class="wrap">
+  <div class="scoreboard">
+    <div class="sb-col"><div class="sb-lbl">⚫ 黑隊</div><div class="sb-num sb-b" id="sb-b">0</div></div>
+    <div class="sb-vs">:</div>
+    <div class="sb-col"><div class="sb-lbl">⚪ 白隊</div><div class="sb-num sb-w" id="sb-w">0</div></div>
   </div>
-</div>
-
-<div id="app-screen" style="display:none">
-  <div class="app-header">
-    <div style="display:flex;align-items:center;gap:10px">
-      <span class="app-header-title">🏓 盲填排點</span>
-      <span class="role-tag" id="role-tag"></span>
-    </div>
-    <div class="header-right">
-      <div class="sync-dot" id="sync-dot" title="同步狀態"></div>
-      <span class="logout-btn" onclick="logout()">登出</span>
-    </div>
+  <div class="champ" id="champ"></div>
+  <div class="sec-title">選手池（點擊或拖拉加入場次）</div>
+  <div class="pool-wrap">
+    <div class="pool-box"><div class="pool-title">⚫ 黑隊選手</div><div class="pool-chips" id="pool-black"></div></div>
+    <div class="pool-box"><div class="pool-title">⚪ 白隊選手</div><div class="pool-chips" id="pool-white"></div></div>
   </div>
-  <div class="app-body" id="app-body"></div>
+  <div class="sec-title">賽程排點</div>
+  <div id="pts"></div>
+  <button class="reset-btn" onclick="resetAll()">🔄 重設所有資料</button>
 </div>
-
+<div id="toast"></div>
 <script>
-// ---- CONSTANTS ----
-const PASSWORDS = {black:'A1234', white:'B9876', host:null, audience:null};
-const POLL_MS = 4000;
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbwK8hRwckqINk50LPyQ3JuIAn_u7niIRpQJC1pyE1vywNfYTy7QnpXCrpRhuzMoiLxlmA/exec';
-const LS_KEY = 'pickleball-2026-data';
+const API='https://script.google.com/macros/s/AKfycbwK8hRwckqINk50LPyQ3JuIAn_u7niIRpQJC1pyE1vywNfYTy7QnpXCrpRhuzMoiLxlmA/exec';
+const POLL=5000;
 
-const BLACK_MEMBERS = [
-  {name:'Luke',g:'M'},{name:'Kevin',g:'M'},{name:'Wade',g:'M'},
-  {name:'Ivan',g:'M'},{name:'Wen',g:'M'},
+const BM=[
+  {name:'Luke',g:'M'},{name:'Kevin',g:'M'},{name:'Wade',g:'M'},{name:'Ivan',g:'M'},{name:'Wen',g:'F'},
   {name:'Penny Chiu',g:'F'},{name:'Jessie',g:'F'},{name:'Ruby',g:'F'},
   {name:'Patty',g:'F'},{name:'Sylvia',g:'F'},{name:'Lisa',g:'F'},{name:'Fangyu',g:'F'}
 ];
-const WHITE_MEMBERS = [
-  {name:'Andy',g:'M'},{name:'Yo',g:'M'},{name:'Jacky',g:'M'},
-  {name:'Pierce',g:'M'},{name:'Hendrix',g:'M'},
+const WM=[
+  {name:'Andy',g:'M'},{name:'Yo',g:'M'},{name:'Jacky',g:'M'},{name:'Pierce',g:'M'},{name:'Hendrix',g:'M'},
   {name:'Naiyu',g:'F'},{name:'Penny Liao',g:'F'},{name:'Lucy',g:'F'},
   {name:'Fanny',g:'F'},{name:'Sammi',g:'F'},{name:'Wendy',g:'F'},{name:'Lele',g:'F'}
 ];
-const POINT_DEFS = [
+const PD=[
   {label:'第一點',type:'男雙',req:'MM'},
   {label:'第二點',type:'女雙',req:'FF'},
   {label:'第三點',type:'混雙',req:'MF'},
@@ -219,429 +132,334 @@ const POINT_DEFS = [
   {label:'第六點',type:'自由點',req:'free'},
 ];
 
-// ---- STATE ----
-let currentRole = null;
-let pendingRole = null;
-let pollTimer = null;
-let localSel = Array.from({length:6}, () => []);
-// In-memory cache — always valid, never undefined
-let cachedData = null;
-
-
-// ---- DATA HELPERS ----
-function defaultData() {
-  return {
-    black:   Array.from({length:6}, () => ({locked:false, players:[]})),
-    white:   Array.from({length:6}, () => ({locked:false, players:[]})),
-    revealed: Array(6).fill(false),
-    scores:  Array.from({length:6}, () => ({black:0, white:0}))
+function def(){
+  return{
+    black:Array.from({length:6},()=>({locked:false,players:[]})),
+    white:Array.from({length:6},()=>({locked:false,players:[]})),
+    revealed:Array(6).fill(false),
+    scores:Array.from({length:6},()=>({black:0,white:0}))
   };
 }
 
-function repairData(d) {
-  // Ensure every required key has the right shape; mutates d in place, returns d
-  if (!d || typeof d !== 'object') return defaultData();
-  const def = defaultData();
-  if (!Array.isArray(d.black)    || d.black.length    !== 6) d.black    = def.black;
-  if (!Array.isArray(d.white)    || d.white.length    !== 6) d.white    = def.white;
-  if (!Array.isArray(d.revealed) || d.revealed.length !== 6) d.revealed = def.revealed;
-  if (!Array.isArray(d.scores)   || d.scores.length   !== 6) d.scores   = def.scores;
-  for (let i = 0; i < 6; i++) {
-    if (!d.black[i]   || typeof d.black[i]   !== 'object') d.black[i]   = {locked:false, players:[]};
-    if (!d.white[i]   || typeof d.white[i]   !== 'object') d.white[i]   = {locked:false, players:[]};
-    if (!Array.isArray(d.black[i].players))  d.black[i].players  = [];
-    if (!Array.isArray(d.white[i].players))  d.white[i].players  = [];
-    if (typeof d.black[i].locked !== 'boolean') d.black[i].locked = false;
-    if (typeof d.white[i].locked !== 'boolean') d.white[i].locked = false;
-    if (!d.scores[i]  || typeof d.scores[i]  !== 'object') d.scores[i]  = {black:0, white:0};
-  }
-  return d;
+let S=def();
+let pending=null; // {team,name,g}
+let drag=null;    // {team,name,g,fromPi}
+let saving=false;
+let pollTimer=null;
+
+// ---- TOAST ----
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);
 }
 
-function readLocalStorage() {
-  try {
-    const txt = localStorage.getItem(LS_KEY);
-    if (!txt) return null;
-    return repairData(JSON.parse(txt));
-  } catch(e) { return null; }
+// ---- SYNC ----
+function setSyncStatus(s){
+  const d=document.getElementById('sync');
+  if(d)d.className='sync'+(s==='ing'?' ing':s==='err'?' err':'');
 }
-
-function writeLocalStorage(data) {
-  try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch(e) {}
-}
-
-// Returns the best available data immediately (never async, never blocks UI)
-function getDataSync() {
-  if (cachedData) return cachedData;
-  const ls = readLocalStorage();
-  cachedData = ls || defaultData();
-  return cachedData;
-}
-
-// ---- SYNC (background, non-blocking) ----
-function setSyncStatus(s) {
-  const el = document.getElementById('sync-dot');
-  if (!el) return;
-  el.className = 'sync-dot' + (s === 'syncing' ? ' syncing' : s === 'error' ? ' error' : '');
-}
-
-// Detect file:// environment — GAS sync won't work there
-const IS_FILE_PROTOCOL = location.protocol === 'file:';
-
-function jsonpGet(url) {
-  return new Promise((resolve, reject) => {
-    if (IS_FILE_PROTOCOL) { reject(new Error('file:// not supported')); return; }
-    const cbName = '_cb' + Date.now() + '_' + Math.floor(Math.random() * 1e6);
-    const script = document.createElement('script');
-    // Timeout shorter than poll interval to prevent pile-up
-    const timer = setTimeout(() => { cleanup(); reject(new Error('timeout')); }, 3500);
-    function cleanup() {
-      clearTimeout(timer);
-      delete window[cbName];
-      if (script.parentNode) script.parentNode.removeChild(script);
-    }
-    window[cbName] = function(data) { cleanup(); resolve(data); };
-    script.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cbName;
-    script.onerror = () => { cleanup(); reject(new Error('script error')); };
-    document.head.appendChild(script);
-  });
-}
-
-// Prevent concurrent GAS syncs from piling up
-let _syncing = false;
-
-async function syncFromGAS() {
-  if (IS_FILE_PROTOCOL) return; // silently skip on file://
-  if (_syncing) return;         // skip if previous sync still running
-  _syncing = true;
-  setSyncStatus('syncing');
-  try {
-    const remote = await jsonpGet(GAS_URL + '?action=load');
-    const repaired = repairData(remote);
-    const remoteStr = JSON.stringify(repaired);
-    const localStr  = JSON.stringify(cachedData);
-    cachedData = repaired;
-    writeLocalStorage(repaired);
+async function apiLoad(){
+  setSyncStatus('ing');
+  try{
+    const r=await fetch(API+'?action=load',{cache:'no-store',redirect:'follow'});
+    const txt=await r.text();
     setSyncStatus('ok');
-    if (remoteStr !== localStr && currentRole) renderApp();
-  } catch(e) {
-    setSyncStatus('error');
-  } finally {
-    _syncing = false;
-  }
+    if(!txt||txt==='{}'||!txt.trim())return null;
+    const d=JSON.parse(txt);
+    const df=def();
+    if(!Array.isArray(d.black)||d.black.length!==6)d.black=df.black;
+    if(!Array.isArray(d.white)||d.white.length!==6)d.white=df.white;
+    if(!Array.isArray(d.revealed)||d.revealed.length!==6)d.revealed=df.revealed;
+    if(!Array.isArray(d.scores)||d.scores.length!==6)d.scores=df.scores;
+    return d;
+  }catch(e){setSyncStatus('err');return null;}
 }
-
-async function pushToGAS(data) {
-  if (IS_FILE_PROTOCOL) return; // silently skip on file://
-  setSyncStatus('syncing');
-  try {
-    const encoded = encodeURIComponent(JSON.stringify(data));
-    await jsonpGet(GAS_URL + '?action=save&data=' + encoded);
+async function apiSave(){
+  setSyncStatus('ing');
+  try{
+    await fetch(API+'?action=save&data='+encodeURIComponent(JSON.stringify(S)),{cache:'no-store',redirect:'follow'});
     setSyncStatus('ok');
-  } catch(e) {
-    setSyncStatus('error');
+  }catch(e){setSyncStatus('err');}
+}
+
+// Save: pause poll, save, resume poll
+async function saveAndSync(){
+  saving=true;
+  stopPoll();
+  await apiSave();
+  saving=false;
+  startPoll();
+}
+
+// Poll: only update if not saving, and don't touch pending/drag state
+async function poll(){
+  if(saving)return;
+  const fresh=await apiLoad();
+  if(saving||!fresh)return;
+  S=fresh;
+  render();
+}
+
+function startPoll(){if(!pollTimer)pollTimer=setInterval(poll,POLL);}
+function stopPoll(){if(pollTimer){clearInterval(pollTimer);pollTimer=null;}}
+
+// ---- VALIDATION ----
+function canAdd(team,pi,g){
+  const slot=S[team][pi];
+  if(slot.locked)return{ok:false,msg:'已鎖定'};
+  if(slot.players.length>=2)return{ok:false,msg:'此點已滿 2 人'};
+  const req=PD[pi].req;
+  if(req==='MM'&&g!=='M')return{ok:false,msg:'此點為男雙，只能選男性'};
+  if(req==='FF'&&g!=='F')return{ok:false,msg:'此點為女雙，只能選女性'};
+  if(req==='MF'){
+    const ms=slot.players.filter(p=>p.g==='M').length;
+    const fs=slot.players.filter(p=>p.g==='F').length;
+    if(g==='M'&&ms>=1)return{ok:false,msg:'混雙已有男性'};
+    if(g==='F'&&fs>=1)return{ok:false,msg:'混雙已有女性'};
   }
+  return{ok:true};
+}
+function isUsed(team,name){
+  return S[team].some(slot=>slot.players.some(p=>p.name===name));
 }
 
-// Public save: update cache + localStorage immediately, then push to GAS async
-function saveData(data) {
-  cachedData = repairData(data);
-  writeLocalStorage(cachedData);
-  pushToGAS(cachedData); // fire and forget
+// ---- CLICK INTERACTION ----
+function onPoolChipClick(team,name,g){
+  if(isUsed(team,name)){toast('此選手已在場次中');return;}
+  if(pending&&pending.team===team&&pending.name===name){pending=null;render();return;}
+  pending={team,name,g};
+  render();
+  toast('請點擊下方場次格子放入，或再點選手取消');
+}
+function onDropzoneClick(team,pi){
+  if(!pending||pending.team!==team)return;
+  const{name,g}=pending;
+  const v=canAdd(team,pi,g);
+  if(!v.ok){toast(v.msg);pending=null;render();return;}
+  if(S[team][pi].players.some(p=>p.name===name)){toast('已在此場次');pending=null;render();return;}
+  S[team][pi].players.push({name,g});
+  pending=null;
+  render();
+  saveAndSync();
+}
+function removePlayer(team,pi,name){
+  if(S[team][pi].locked)return;
+  S[team][pi].players=S[team][pi].players.filter(p=>p.name!==name);
+  render();
+  saveAndSync();
 }
 
-// ---- LOGIN ----
-function selectRole(role) {
-  if (PASSWORDS[role] === null) { enterApp(role); return; }
-  pendingRole = role;
-  document.getElementById('pin-title').textContent = role === 'black' ? '⚫ 黑隊密碼' : '⚪ 白隊密碼';
-  document.getElementById('pin-error').textContent = '';
-  document.getElementById('pin-input').value = '';
-  document.getElementById('pin-modal').style.display = 'flex';
-  setTimeout(() => document.getElementById('pin-input').focus(), 100);
+// ---- DRAG ----
+function dstart(e,team,name,g,fromPi){
+  drag={team,name,g,fromPi};
+  e.dataTransfer.effectAllowed='move';
+  e.dataTransfer.setData('application/json',JSON.stringify({team,name,g,fromPi}));
+  // clear pending when drag starts
+  pending=null;
+  setTimeout(()=>e.target&&e.target.classList.add('dragging'),0);
 }
-function submitPin() {
-  const val = document.getElementById('pin-input').value;
-  if (val === PASSWORDS[pendingRole]) { closePin(); enterApp(pendingRole); }
-  else { document.getElementById('pin-error').textContent = '密碼錯誤'; document.getElementById('pin-input').value = ''; }
+function dend(e){
+  e.target&&e.target.classList.remove('dragging');
+  // drag variable cleared in ddrop; if no drop happened, just clear
+  drag=null;
 }
-function closePin() { document.getElementById('pin-modal').style.display = 'none'; pendingRole = null; }
+function dover(e,team,pi){
+  if(!drag||drag.team!==team)return;
+  const slot=S[team][pi];
+  if(slot.locked)return;
+  // allow if slot not full, OR if dragging from this same slot
+  const wouldAdd=!slot.players.some(p=>p.name===drag.name);
+  if(wouldAdd&&slot.players.length>=2)return;
+  e.preventDefault();
+  e.stopPropagation();
+  e.currentTarget.classList.add('hover');
+}
+function dleave(e){e.currentTarget.classList.remove('hover');}
+function ddrop(e,team,pi){
+  e.currentTarget.classList.remove('hover');
+  e.preventDefault();
+  e.stopPropagation();
+  // read drag info
+  let d=drag;
+  if(!d){
+    try{d=JSON.parse(e.dataTransfer.getData('application/json'));}catch(ex){return;}
+  }
+  drag=null;
+  if(!d||d.team!==team)return;
+  const{name,g,fromPi}=d;
+  // validate before touching state
+  const alreadyHere=S[team][pi].players.some(p=>p.name===name);
+  if(!alreadyHere){
+    const v=canAdd(team,pi,g);
+    if(!v.ok){toast(v.msg);return;}
+  }
+  // remove from source slot (not pool: fromPi===null)
+  if(fromPi!==null&&fromPi!==undefined&&fromPi!==pi){
+    S[team][fromPi].players=S[team][fromPi].players.filter(p=>p.name!==name);
+  }
+  // add to target
+  if(!alreadyHere)S[team][pi].players.push({name,g});
+  render();
+  saveAndSync();
+}
 
-function enterApp(role) {
-  currentRole = role;
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('app-screen').style.display = 'block';
-  const tagEl = document.getElementById('role-tag');
-  const labels = {black:'⚫ 黑隊', white:'⚪ 白隊', host:'🎙️ 主持人', audience:'👀 觀眾'};
-  const classes = {black:'tag-black', white:'tag-white', host:'tag-host', audience:'tag-audience'};
-  tagEl.textContent = labels[role];
-  tagEl.className = 'role-tag ' + classes[role];
-  localSel = Array.from({length:6}, () => []);
-  // 1. Render immediately with local data (no waiting)
-  renderApp();
-  // 2. Start background sync loop
-  startPolling();
+// ---- POINT ACTIONS ----
+async function lockPt(pi){
+  S.black[pi].locked=true;S.white[pi].locked=true;
+  render();await saveAndSync();
 }
-
-function logout() {
-  stopPolling();
-  currentRole = null;
-  document.getElementById('login-screen').style.display = 'flex';
-  document.getElementById('app-screen').style.display = 'none';
+async function unlockPt(pi){
+  S.black[pi].locked=false;S.white[pi].locked=false;
+  render();await saveAndSync();
 }
-
-function startPolling() {
-  stopPolling();
-  // First sync right away, then every POLL_MS
-  syncFromGAS();
-  pollTimer = setInterval(syncFromGAS, POLL_MS);
+async function revealPt(pi){
+  S.revealed[pi]=true;render();await saveAndSync();
 }
-function stopPolling() { if (pollTimer) { clearInterval(pollTimer); pollTimer = null; } }
+async function adjScore(pi,team,delta){
+  S.scores[pi][team]=Math.max(0,Math.min(11,S.scores[pi][team]+delta));
+  render();await saveAndSync();
+}
+async function resetAll(){
+  if(!confirm('確定要重設所有資料？'))return;
+  S=def();pending=null;drag=null;render();await saveAndSync();
+}
 
 // ---- RENDER ----
-function renderApp() {
-  if (!currentRole) return;
-  if (currentRole === 'host')         renderHost();
-  else if (currentRole === 'audience') renderAudience();
-  else                                  renderTeamFill();
+function render(){
+  // scoreboard
+  let bt=0,wt=0;
+  S.scores.forEach(s=>{if(s.black===11)bt++;if(s.white===11)wt++;});
+  document.getElementById('sb-b').textContent=bt;
+  document.getElementById('sb-w').textContent=wt;
+  const done=bt+wt===6||bt>=4||wt>=4;
+  document.getElementById('champ').textContent=done
+    ?(bt>wt?'🏆 黑隊獲勝！':wt>bt?'🏆 白隊獲勝！':'⚡ 3:3 平手！加賽驟死賽！'):'';
+
+  renderPool('black',BM);
+  renderPool('white',WM);
+  renderPoints();
 }
 
-// ---- TEAM FILL (synchronous render) ----
-function renderTeamFill() {
-  if (currentRole !== 'black' && currentRole !== 'white') return;
-  const data     = getDataSync();
-  const team     = currentRole;
-  const members  = team === 'black' ? BLACK_MEMBERS : WHITE_MEMBERS;
-  const chipSel  = team === 'black' ? 'chip-sel-b' : 'chip-sel-w';
-  const lockClass = team === 'black' ? 'lock-btn-b' : 'lock-btn-w';
-  let html = `<div class="section-title">秘密填入每點出場名單</div>`;
-  POINT_DEFS.forEach((pd, i) => {
-    const slot   = data[team][i];
-    const sel    = localSel[i];
-    const locked = slot.locked;
-    html += `<div class="point-card">
-      <div class="point-header">
-        <div class="point-header-left"><h4>${pd.label}</h4><span>${pd.type}</span></div>
-        ${locked ? '<span class="point-status status-locked">已鎖定 🔒</span>' : '<span class="point-status status-open">填寫中</span>'}
-      </div><div class="point-body">`;
-    if (locked) {
-      html += `<div class="locked-display">
-        <div style="color:#22c55e;font-size:.8rem">✅ 已鎖定送出</div>
-        <div class="locked-names">${slot.players.map(p => p.name).join(' ＆ ')}</div>
-      </div>`;
-    } else {
-      html += `<div class="selected-players">`;
-      if (!sel.length) html += `<span style="color:#64748b;font-size:.8rem">點選下方隊員（需選 2 位）</span>`;
-      else sel.forEach(p => {
-        html += `<span class="selected-tag"><span class="gender-dot ${p.g === 'M' ? 'gm' : 'gf'}"></span>${p.name}<span class="rm" onclick="removePlayer(${i},'${p.name}')">✕</span></span>`;
-      });
-      html += `</div><div class="player-grid">`;
-      members.forEach(m => {
-        const isSel = sel.find(p => p.name === m.name);
-        html += `<div class="player-chip${isSel ? ' ' + chipSel : ''}" onclick="togglePlayer(${i},'${m.name}','${m.g}')">
-          <span class="gender-dot ${m.g === 'M' ? 'gm' : 'gf'}"></span>${m.name}</div>`;
-      });
-      html += `</div>`;
-      const canLock = sel.length === 2;
-      html += `<button class="lock-btn ${lockClass}" onclick="lockPoint(${i})"
-        ${canLock ? '' : 'disabled'} style="${canLock ? '' : 'opacity:.4;cursor:not-allowed'}">
-        ${canLock ? '🔒 鎖定送出' : '已選 ' + sel.length + '/2 位'}</button>`;
-    }
-    html += `</div></div>`;
-  });
-  document.getElementById('app-body').innerHTML = html;
+function renderPool(team,members){
+  const el=document.getElementById('pool-'+team);
+  const pend=pending&&pending.team===team?pending.name:null;
+  el.innerHTML=members.map(m=>{
+    const used=isUsed(team,m.name);
+    let cls='chip';
+    if(used)cls+=' used';
+    else if(pend===m.name)cls+=' pending';
+    return `<span class="${cls}"
+      ${!used?`draggable="true"
+        ondragstart="event.stopPropagation();dstart(event,'${team}','${m.name}','${m.g}',null)"
+        ondragend="dend(event)"
+        onclick="onPoolChipClick('${team}','${m.name}','${m.g}')"`:''}>
+      <span class="gdot ${m.g==='M'?'gm':'gf'}"></span>${m.name}
+    </span>`;
+  }).join('');
 }
 
-function togglePlayer(pi, name, g) {
-  const sel = localSel[pi];
-  const idx = sel.findIndex(p => p.name === name);
-  if (idx >= 0) { sel.splice(idx, 1); renderTeamFill(); return; }
-  if (sel.length >= 2) return;
-  const req = POINT_DEFS[pi].req;
-  if (req === 'MM' && g !== 'M') { alert('此點為男雙，只能選男性！'); return; }
-  if (req === 'FF' && g !== 'F') { alert('此點為女雙，只能選女性！'); return; }
-  if (req === 'MF') {
-    const ms = sel.filter(p => p.g === 'M').length;
-    const fs = sel.filter(p => p.g === 'F').length;
-    if (g === 'M' && ms >= 1) { alert('混雙已有男性！'); return; }
-    if (g === 'F' && fs >= 1) { alert('混雙已有女性！'); return; }
-  }
-  sel.push({name, g});
-  renderTeamFill();
-}
+function renderPoints(){
+  let html='';
+  PD.forEach((pd,pi)=>{
+    const bs=S.black[pi],ws=S.white[pi];
+    const locked=bs.locked||ws.locked;
+    const rev=S.revealed[pi];
+    const sc=S.scores[pi];
+    const bWin=sc.black===11,wWin=sc.white===11;
+    const canLock=bs.players.length===2&&ws.players.length===2&&!locked;
+    const badge=rev?'<span class="badge b-pub">已公布</span>'
+      :locked?'<span class="badge b-lock">🔒 已鎖定</span>'
+      :'<span class="badge b-open">排陣中</span>';
 
-function removePlayer(pi, name) {
-  localSel[pi] = localSel[pi].filter(p => p.name !== name);
-  renderTeamFill();
-}
-
-function lockPoint(pi) {
-  if (localSel[pi].length !== 2) return;
-  const data = getDataSync();
-  data[currentRole][pi] = {locked:true, players:[...localSel[pi]]};
-  saveData(data);
-  localSel[pi] = [];
-  renderTeamFill();
-}
-
-// ---- HOST (synchronous render) ----
-function renderHost() {
-  if (currentRole !== 'host') return;
-  const data = getDataSync();
-  let bt = 0, wt = 0;
-  data.scores.forEach(s => { if (s.black === 11) bt++; if (s.white === 11) wt++; });
-  let champText = '';
-  const done = bt + wt === 6 || bt >= 4 || wt >= 4;
-  if (done) {
-    if (bt > wt)      champText = '🏆 黑隊獲勝！';
-    else if (wt > bt) champText = '🏆 白隊獲勝！';
-    else              champText = '⚡ 3:3 平手！加賽混雙驟死賽！';
-  }
-  let html = `
-  <div class="total-board">
-    <div class="total-col"><div class="total-col-label">⚫ 黑隊</div><div class="total-col-num total-b">${bt}</div></div>
-    <div class="total-vs">:</div>
-    <div class="total-col"><div class="total-col-label">⚪ 白隊</div><div class="total-col-num total-w">${wt}</div></div>
-  </div>
-  <div class="champion-text">${champText}</div>
-  <div class="section-title">各點管理</div>`;
-  POINT_DEFS.forEach((pd, i) => {
-    const bSlot = data.black[i], wSlot = data.white[i];
-    const revealed = data.revealed[i];
-    const bs = data.scores[i].black, ws = data.scores[i].white;
-    const bWin = bs === 11, wWin = ws === 11;
-    const bothLocked = bSlot.locked && wSlot.locked;
-    html += `<div class="host-point-card">
-      <div class="host-point-header">
-        <h4>${pd.label} <span style="font-size:.75rem;color:#64748b;font-weight:400">${pd.type}</span></h4>
-        <div class="lock-status-row">
-          <span class="ls-badge ${bSlot.locked ? 'ls-ok' : 'ls-wait'}">黑${bSlot.locked ? '✓' : '…'}</span>
-          <span class="ls-badge ${wSlot.locked ? 'ls-ok' : 'ls-wait'}">白${wSlot.locked ? '✓' : '…'}</span>
-        </div>
-      </div><div class="host-point-body">`;
-    if (revealed) {
-      html += `<div class="revealed-banner">
-        <div class="revealed-vs">⚫ ${bSlot.players.map(p => p.name).join(' ＆ ')} &nbsp;vs&nbsp; ${wSlot.players.map(p => p.name).join(' ＆ ')} ⚪</div>
+    html+=`<div class="pt-card">
+      <div class="pt-hdr">
+        <div class="pt-hdr-l"><h4>${pd.label}</h4><span>${pd.type}</span></div>
+        ${badge}
       </div>
-      <div class="score-section">
-        <div class="score-col">
-          <div class="score-label">⚫ 黑隊 ${bWin ? '<span class="win-tag">勝</span>' : ''}</div>
-          <div class="score-val sv-b">${bs}</div>
-          <div class="score-btns">
-            <button class="sc-btn sc-minus" onclick="adjScore(${i},'black',-1)">−</button>
-            <button class="sc-btn sc-plus-b" onclick="adjScore(${i},'black',1)">+</button>
-          </div>
+      <div class="pt-body">
+        ${dzHtml('black',pi,locked)}
+        <div class="mid-col">
+          <div class="vs">VS</div>
+          ${rev?scHtml(pi,sc,bWin,wWin):''}
         </div>
-        <div class="sc-colon">:</div>
-        <div class="score-col">
-          <div class="score-label">⚪ 白隊 ${wWin ? '<span class="win-tag">勝</span>' : ''}</div>
-          <div class="score-val sv-w">${ws}</div>
-          <div class="score-btns">
-            <button class="sc-btn sc-minus" onclick="adjScore(${i},'white',-1)">−</button>
-            <button class="sc-btn sc-plus-w" onclick="adjScore(${i},'white',1)">+</button>
-          </div>
-        </div>
-      </div>`;
-    } else {
-      html += `<div class="vs-row">
-        <div class="team-col">
-          <div class="team-col-label">⚫ 黑隊</div>
-          <div class="team-col-names">${bSlot.locked ? '🔒 已鎖定' : '<span class="waiting-text">等待填寫…</span>'}</div>
-        </div>
-        <div class="vs-badge">VS</div>
-        <div class="team-col">
-          <div class="team-col-label">⚪ 白隊</div>
-          <div class="team-col-names">${wSlot.locked ? '🔒 已鎖定' : '<span class="waiting-text">等待填寫…</span>'}</div>
-        </div>
+        ${dzHtml('white',pi,locked)}
       </div>
-      <button class="publish-btn" onclick="revealPoint(${i})" ${bothLocked ? '' : 'disabled'}>
-        ${bothLocked ? '📢 公布名單' : '等待雙方鎖定…'}</button>`;
-    }
-    html += `</div></div>`;
+      <div class="pt-actions">
+        ${!locked?`<button class="act a-lock" onclick="lockPt(${pi})" ${canLock?'':'disabled'}>🔒 鎖定本點</button>`:''}
+        ${locked&&!rev?`<button class="act a-reveal" onclick="revealPt(${pi})">📢 公布名單</button>
+          <button class="act a-unlock" onclick="unlockPt(${pi})">解鎖修改</button>`:''}
+        ${rev?`<button class="act a-unlock" style="max-width:110px" onclick="unlockPt(${pi})">解鎖重排</button>`:''}
+      </div>
+    </div>`;
   });
-  html += `<div style="height:8px"></div>
-  <button class="btn btn-danger" style="width:100%;padding:12px" onclick="resetAll()">🔄 重設所有資料</button>
-  <div style="height:24px"></div>`;
-  document.getElementById('app-body').innerHTML = html;
+  document.getElementById('pts').innerHTML=html;
 }
 
-function revealPoint(pi) {
-  const data = getDataSync();
-  data.revealed[pi] = true;
-  saveData(data);
-  renderHost();
-}
-function adjScore(pi, team, delta) {
-  const data = getDataSync();
-  data.scores[pi][team] = Math.max(0, Math.min(11, data.scores[pi][team] + delta));
-  saveData(data);
-  renderHost();
-}
-function resetAll() {
-  if (!confirm('確定要重設所有資料？')) return;
-  cachedData = defaultData();
-  writeLocalStorage(cachedData);
-  pushToGAS(cachedData);
-  localSel = Array.from({length:6}, () => []);
-  renderApp();
+function dzHtml(team,pi,locked){
+  const slot=S[team][pi];
+  const full=slot.players.length>=2;
+  const hasPending=pending&&pending.team===team&&!locked;
+  let cls='dropzone';
+  if(locked)cls+=' locked';
+  else if(full)cls+=' full';
+
+  const chips=slot.players.map(p=>{
+    const sc=team==='black'?'b-sel':'w-sel';
+    const rm=!locked?`<span class="rm" onclick="event.stopPropagation();removePlayer('${team}',${pi},'${p.name}')">✕</span>`:'';
+    return `<span class="chip ${sc}"
+      ondragstart="event.stopPropagation();dstart(event,'${team}','${p.name}','${p.g}',${pi})"
+      ondragend="dend(event)"
+      ondragover="event.stopPropagation();"
+      ondrop="event.stopPropagation();"
+      onclick="event.stopPropagation();"
+      ${!locked?'draggable="true"':''}>${rm}<span class="gdot ${p.g==='M'?'gm':'gf'}"></span>${p.name}</span>`;
+  }).join('');
+
+  const hint=slot.players.length===0?`<span class="dz-hint">${hasPending?'點此放入':'拖入或點擊選手'}</span>`:'';
+
+  return `<div class="slot-col">
+    <div class="slot-lbl">${team==='black'?'⚫ 黑隊':'⚪ 白隊'}</div>
+    <div class="${cls}"
+      onclick="onDropzoneClick('${team}',${pi})"
+      ondragover="dover(event,'${team}',${pi})"
+      ondragleave="dleave(event)"
+      ondrop="ddrop(event,'${team}',${pi})">
+      ${hint}${chips}
+    </div>
+  </div>`;
 }
 
-// ---- AUDIENCE (synchronous render) ----
-function renderAudience() {
-  if (currentRole !== 'audience') return;
-  const data = getDataSync();
-  let bt = 0, wt = 0;
-  data.scores.forEach(s => { if (s.black === 11) bt++; if (s.white === 11) wt++; });
-  let champText = '';
-  const done = bt + wt === 6 || bt >= 4 || wt >= 4;
-  if (done) {
-    if (bt > wt)      champText = '🏆 黑隊獲勝！';
-    else if (wt > bt) champText = '🏆 白隊獲勝！';
-    else              champText = '⚡ 3:3 平手！加賽混雙驟死賽！';
-  }
-  let html = `
-  <div class="total-board">
-    <div class="total-col"><div class="total-col-label">⚫ 黑隊</div><div class="total-col-num total-b">${bt}</div></div>
-    <div class="total-vs">:</div>
-    <div class="total-col"><div class="total-col-label">⚪ 白隊</div><div class="total-col-num total-w">${wt}</div></div>
-  </div>
-  <div class="champion-text">${champText}</div>
-  <div class="section-title">比賽進度</div>`;
-  POINT_DEFS.forEach((pd, i) => {
-    const bSlot = data.black[i], wSlot = data.white[i];
-    const revealed = data.revealed[i];
-    const bs = data.scores[i].black, ws = data.scores[i].white;
-    const bWin = bs === 11, wWin = ws === 11;
-    html += `<div class="audience-point">
-      <div class="audience-point-header">
-        <h4 style="font-size:.95rem;font-weight:700">${pd.label} <span style="font-size:.75rem;color:#64748b;font-weight:400">${pd.type}</span></h4>
-        ${revealed
-          ? (bWin ? '<span class="ls-badge ls-ok">黑隊勝</span>' : wWin ? '<span class="ls-badge" style="background:#0f1e3a;color:#60a5fa">白隊勝</span>' : '<span class="ls-badge ls-wait">進行中</span>')
-          : '<span class="ls-badge ls-wait">尚未公布</span>'}
+function scHtml(pi,sc,bWin,wWin){
+  return `<div>
+    <div class="sc-nums">
+      <span class="sc-n sc-nb">${sc.black}</span>
+      <span class="sc-col">:</span>
+      <span class="sc-n sc-nw">${sc.white}</span>
+    </div>
+    <div style="display:flex;gap:4px;justify-content:center;margin-top:3px">
+      ${bWin?'<span class="win-lbl win-b">黑勝</span>':wWin?'<span class="win-lbl win-w">白勝</span>':''}
+    </div>
+    <div class="sc-btns">
+      <div class="sc-row">
+        <button class="sc-btn sc-mb" onclick="adjScore(${pi},'black',1)">⚫+</button>
+        <button class="sc-btn sc-mw" onclick="adjScore(${pi},'white',1)">⚪+</button>
       </div>
-      <div class="audience-point-body">`;
-    if (revealed) {
-      html += `<div class="audience-vs">
-        <div class="audience-team">
-          <div class="team-col-label">⚫ 黑隊</div>
-          <div class="audience-names">${bSlot.players.map(p => p.name).join('<br>')}</div>
-          <div class="audience-score sv-b" style="margin-top:6px">${bs}</div>
-        </div>
-        <div class="vs-badge">VS</div>
-        <div class="audience-team">
-          <div class="team-col-label">⚪ 白隊</div>
-          <div class="audience-names">${wSlot.players.map(p => p.name).join('<br>')}</div>
-          <div class="audience-score sv-w" style="margin-top:6px">${ws}</div>
-        </div>
-      </div>`;
-    } else {
-      html += `<div class="hidden-banner">⏳ 等待主持人公布…</div>`;
-    }
-    html += `</div></div>`;
-  });
-  html += `<div style="height:24px"></div>`;
-  document.getElementById('app-body').innerHTML = html;
+      <div class="sc-row">
+        <button class="sc-btn sc-mn" onclick="adjScore(${pi},'black',-1)">−</button>
+        <button class="sc-btn sc-mn" onclick="adjScore(${pi},'white',-1)">−</button>
+      </div>
+    </div>
+  </div>`;
 }
+
+// ---- INIT ----
+(async()=>{
+  const fresh=await apiLoad();
+  if(fresh)S=fresh;
+  render();
+  startPoll();
+})();
 </script>
 </body>
 </html>
