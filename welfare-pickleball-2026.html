@@ -10,18 +10,58 @@
     --bg:#0a0e1a;--surface:#131929;--surface2:#1c2540;--border:#2a3558;
     --bt:#94a3b8;--ba:#475569;--wt:#60a5fa;--wa:#3b82f6;
     --text:#e2e8f0;--muted:#64748b;
-    --ok:#22c55e;--warn:#f59e0b;--err:#ef4444;
+    --ok:#22c55e;--warn:#f59e0b;--err:#ef4444;--host:#a78bfa;--ha:#7c3aed;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+  /* ENTRY */
+  #entry{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;}
+  .entry-title{font-family:'Oswald',sans-serif;font-size:2rem;letter-spacing:.1em;color:#fff;margin-bottom:6px;}
+  .entry-sub{color:var(--muted);font-size:.85rem;margin-bottom:36px;}
+  .role-cards{display:flex;flex-direction:column;gap:12px;width:100%;max-width:340px;}
+  .role-card{border-radius:12px;padding:16px 20px;cursor:pointer;border:2px solid transparent;transition:all .2s;display:flex;align-items:center;gap:14px;}
+  .role-card:hover{transform:translateY(-2px);}
+  .role-card.black{background:var(--surface2);border-color:var(--ba);}
+  .role-card.white{background:#0f1e3a;border-color:var(--wa);}
+  .role-card.host{background:#130f2a;border-color:var(--ha);}
+  .role-icon{font-size:1.8rem;}
+  .role-info h3{font-weight:700;font-size:1rem;}
+  .role-info p{font-size:.75rem;color:var(--muted);}
+  .role-card.black .role-info h3{color:var(--bt);}
+  .role-card.white .role-info h3{color:var(--wt);}
+  .role-card.host .role-info h3{color:var(--host);}
+
+  /* MODAL */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:100;}
+  .modal{background:var(--surface);border-radius:16px;padding:28px;width:300px;border:1px solid var(--border);}
+  .modal h3{margin-bottom:14px;font-size:1.1rem;}
+  .modal input{width:100%;background:var(--bg);border:1.5px solid var(--border);color:#fff;padding:10px 14px;border-radius:8px;font-size:1rem;letter-spacing:.2em;margin-bottom:10px;outline:none;}
+  .modal input:focus{border-color:var(--wa);}
+  .modal-btns{display:flex;gap:8px;}
+  .btn{padding:9px 20px;border-radius:8px;border:none;cursor:pointer;font-weight:700;font-size:.85rem;}
+  .btn-primary{background:var(--wa);color:#fff;}
+  .btn-secondary{background:var(--surface2);color:var(--muted);}
+  .err-msg{color:var(--err);font-size:.78rem;margin-bottom:8px;min-height:18px;}
+
+  /* APP */
+  #app{display:none;min-height:100vh;}
   .hdr{background:var(--surface);border-bottom:1px solid var(--border);padding:11px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:30;}
   .hdr-title{font-family:'Oswald',sans-serif;font-size:1.05rem;letter-spacing:.07em;}
   .hdr-right{display:flex;align-items:center;gap:10px;}
+  .role-tag{font-size:.7rem;padding:3px 10px;border-radius:20px;font-weight:700;}
+  .tag-black{background:var(--ba);color:#e2e8f0;}
+  .tag-white{background:var(--wa);color:#fff;}
+  .tag-host{background:var(--ha);color:#fff;}
   .sync{width:8px;height:8px;border-radius:50%;background:var(--ok);flex-shrink:0;}
   .sync.ing{background:var(--warn);animation:blink 1s infinite;}
   .sync.err{background:var(--err);}
   @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+  .logout-btn{font-size:.75rem;color:var(--muted);cursor:pointer;}
+  .logout-btn:hover{color:var(--text);}
   .wrap{padding:14px;max-width:960px;margin:0 auto;}
+
+  /* SCOREBOARD */
   .scoreboard{background:var(--surface);border-radius:12px;padding:14px 20px;margin-bottom:14px;display:flex;justify-content:center;align-items:center;gap:20px;border:1px solid var(--border);}
   .sb-col{text-align:center;}
   .sb-lbl{font-size:.68rem;color:var(--muted);margin-bottom:2px;}
@@ -29,14 +69,17 @@
   .sb-b{color:var(--bt);}.sb-w{color:var(--wt);}
   .sb-vs{font-size:1.3rem;color:var(--border);font-weight:900;}
   .champ{text-align:center;font-size:.95rem;font-weight:700;color:var(--warn);min-height:22px;margin-bottom:12px;}
-  .pool-wrap{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
-  .pool-box{background:var(--surface);border-radius:10px;padding:10px;border:1px solid var(--border);}
+
+  /* POOL */
+  .pool-box{background:var(--surface);border-radius:10px;padding:10px;border:1px solid var(--border);margin-bottom:16px;}
   .pool-title{font-size:.7rem;font-weight:700;letter-spacing:.06em;color:var(--muted);margin-bottom:7px;}
   .pool-chips{display:flex;flex-wrap:wrap;gap:5px;}
+
+  /* CHIP */
   .chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:16px;font-size:.78rem;border:1.5px solid var(--border);background:var(--surface2);cursor:grab;user-select:none;transition:all .15s;}
   .chip:active{cursor:grabbing;}
   .chip.dragging{opacity:.3;}
-  .chip.used{opacity:.3;border-style:dashed;}
+  .chip.used{opacity:.3;border-style:dashed;cursor:not-allowed;pointer-events:none;}
   .chip.b-sel{border-color:var(--bt);background:#1a2235;color:var(--bt);}
   .chip.w-sel{border-color:var(--wa);background:#0f1e3a;color:var(--wt);}
   .chip.pending{border-color:var(--warn);background:#1a1500;color:var(--warn);}
@@ -44,6 +87,8 @@
   .gm{background:#3b82f6;}.gf{background:#ec4899;}
   .rm{color:var(--err);cursor:pointer;font-weight:900;margin-left:2px;font-size:.82rem;line-height:1;}
   .rm:hover{color:#fca5a5;}
+
+  /* POINT CARD */
   .pt-card{background:var(--surface);border-radius:12px;margin-bottom:10px;border:1px solid var(--border);overflow:hidden;}
   .pt-hdr{padding:9px 13px;background:var(--surface2);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
   .pt-hdr-l h4{font-size:.92rem;font-weight:700;}
@@ -52,16 +97,23 @@
   .b-open{background:#1a2a1a;color:var(--ok);}
   .b-lock{background:#2a1a1a;color:var(--err);}
   .b-pub{background:#130f2a;color:#a78bfa;}
-  .pt-body{padding:11px 12px;display:grid;grid-template-columns:1fr 70px 1fr;gap:8px;}
-  .slot-col{display:flex;flex-direction:column;gap:5px;}
-  .slot-lbl{font-size:.66rem;font-weight:700;color:var(--muted);letter-spacing:.04em;}
+  .b-wait{background:#1a1a2a;color:var(--muted);}
+
+  /* DROPZONE */
   .dropzone{min-height:46px;border:2px dashed var(--border);border-radius:8px;padding:5px 7px;display:flex;flex-wrap:wrap;gap:4px;align-items:center;transition:border-color .15s,background .15s;position:relative;cursor:pointer;}
   .dropzone.hover{border-color:var(--warn);background:rgba(245,158,11,.06);}
   .dropzone.full{border-color:var(--ok);border-style:solid;}
-  .dropzone.locked{pointer-events:none;opacity:.75;}
+  .dropzone.locked{pointer-events:none;opacity:.75;cursor:default;}
   .dz-hint{font-size:.72rem;color:var(--muted);position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none;white-space:nowrap;}
+
+  /* HOST GRID */
+  .host-body{padding:11px 12px;display:grid;grid-template-columns:1fr 70px 1fr;gap:8px;}
+  .slot-col{display:flex;flex-direction:column;gap:5px;}
+  .slot-lbl{font-size:.66rem;font-weight:700;color:var(--muted);letter-spacing:.04em;}
   .mid-col{display:flex;flex-direction:column;align-items:center;gap:5px;padding-top:16px;}
   .vs{font-size:.82rem;font-weight:900;color:var(--border);}
+
+  /* SCORE */
   .sc-nums{display:flex;align-items:center;gap:5px;justify-content:center;}
   .sc-n{font-family:'Oswald',sans-serif;font-size:1.5rem;font-weight:700;}
   .sc-nb{color:var(--bt);}.sc-nw{color:var(--wt);}
@@ -72,6 +124,8 @@
   .sc-mb{background:var(--ba);color:#fff;}.sc-mw{background:var(--wa);color:#fff;}.sc-mn{background:var(--surface2);color:var(--muted);}
   .win-lbl{font-size:.6rem;padding:2px 5px;border-radius:6px;font-weight:700;}
   .win-b{background:#14532d;color:var(--ok);}.win-w{background:#0f1e3a;color:var(--wt);}
+
+  /* ACTIONS */
   .pt-actions{padding:9px 12px;border-top:1px solid var(--border);display:flex;gap:7px;flex-wrap:wrap;}
   .act{flex:1;min-width:72px;padding:7px 10px;border-radius:7px;border:none;font-weight:700;font-size:.8rem;cursor:pointer;transition:opacity .15s;}
   .act:hover:not(:disabled){opacity:.82;}
@@ -79,38 +133,81 @@
   .a-lock{background:#7c3aed;color:#fff;}
   .a-unlock{background:var(--surface2);color:var(--warn);border:1px solid var(--warn);}
   .a-reveal{background:var(--ok);color:#fff;}
+
   .sec-title{font-size:.68rem;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:9px;}
   .reset-btn{width:100%;padding:11px;border-radius:8px;border:none;background:var(--err);color:#fff;font-weight:700;font-size:.88rem;cursor:pointer;margin-top:6px;margin-bottom:22px;}
+
   #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:8px 18px;border-radius:20px;font-size:.82rem;opacity:0;transition:opacity .2s;pointer-events:none;z-index:99;border:1px solid var(--border);}
   #toast.show{opacity:1;}
 </style>
 </head>
 <body>
-<div class="hdr">
-  <div class="hdr-title">🏓 2026 匹克球大賽</div>
-  <div class="hdr-right">
-    <div class="sync" id="sync"></div>
+
+<!-- ENTRY -->
+<div id="entry">
+  <div class="entry-title">🏓 2026 匹克球大賽</div>
+  <div class="entry-sub">選擇角色進入</div>
+  <div class="role-cards">
+    <div class="role-card black" onclick="selectRole('black')">
+      <div class="role-icon">⚫</div>
+      <div class="role-info"><h3>黑隊隊長</h3><p>秘密填入每點出場名單</p></div>
+    </div>
+    <div class="role-card white" onclick="selectRole('white')">
+      <div class="role-icon">⚪</div>
+      <div class="role-info"><h3>白隊隊長</h3><p>秘密填入每點出場名單</p></div>
+    </div>
+    <div class="role-card host" onclick="selectRole('host')">
+      <div class="role-icon">🎙️</div>
+      <div class="role-info"><h3>主持人</h3><p>公布名單、記錄比分</p></div>
+    </div>
   </div>
 </div>
-<div class="wrap">
-  <div class="scoreboard">
-    <div class="sb-col"><div class="sb-lbl">⚫ 黑隊</div><div class="sb-num sb-b" id="sb-b">0</div></div>
-    <div class="sb-vs">:</div>
-    <div class="sb-col"><div class="sb-lbl">⚪ 白隊</div><div class="sb-num sb-w" id="sb-w">0</div></div>
+
+<!-- PIN MODAL -->
+<div class="modal-overlay" id="pin-modal" style="display:none">
+  <div class="modal">
+    <h3 id="pin-title">輸入密碼</h3>
+    <div class="err-msg" id="pin-err"></div>
+    <input type="password" id="pin-input" placeholder="密碼" autocomplete="off" onkeydown="if(event.key==='Enter')submitPin()">
+    <div class="modal-btns">
+      <button class="btn btn-primary" onclick="submitPin()">進入</button>
+      <button class="btn btn-secondary" onclick="closePin()">取消</button>
+    </div>
   </div>
-  <div class="champ" id="champ"></div>
-  <div class="sec-title">選手池（點擊或拖拉加入場次）</div>
-  <div class="pool-wrap">
-    <div class="pool-box"><div class="pool-title">⚫ 黑隊選手</div><div class="pool-chips" id="pool-black"></div></div>
-    <div class="pool-box"><div class="pool-title">⚪ 白隊選手</div><div class="pool-chips" id="pool-white"></div></div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="hdr">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="hdr-title">🏓 2026 匹克球大賽</div>
+      <span class="role-tag" id="role-tag"></span>
+    </div>
+    <div class="hdr-right">
+      <div class="sync" id="sync"></div>
+      <span class="logout-btn" onclick="logout()">登出</span>
+    </div>
   </div>
-  <div class="sec-title">賽程排點</div>
-  <div id="pts"></div>
-  <button class="reset-btn" onclick="resetAll()">🔄 重設所有資料</button>
+  <div class="wrap" id="app-wrap"></div>
+</div>
+
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirm-modal" style="display:none">
+  <div class="modal">
+    <h3 style="margin-bottom:12px">⚠️ 確認操作</h3>
+    <p id="confirm-msg" style="font-size:.88rem;color:var(--muted);margin-bottom:18px;line-height:1.5"></p>
+    <div class="modal-btns">
+      <button class="btn" id="confirm-ok" style="background:var(--err);color:#fff">確定</button>
+      <button class="btn btn-secondary" id="confirm-cancel">取消</button>
+    </div>
+  </div>
 </div>
 <div id="toast"></div>
+
 <script>
 const API='https://script.google.com/macros/s/AKfycbwK8hRwckqINk50LPyQ3JuIAn_u7niIRpQJC1pyE1vywNfYTy7QnpXCrpRhuzMoiLxlmA/exec';
+const PASSWORDS={black:'A1234',white:'B9876',host:null};
 const POLL=5000;
 
 const BM=[
@@ -134,6 +231,7 @@ const PD=[
 
 function def(){
   return{
+    // 黑白各自獨立 locked
     black:Array.from({length:6},()=>({locked:false,players:[]})),
     white:Array.from({length:6},()=>({locked:false,players:[]})),
     revealed:Array(6).fill(false),
@@ -142,16 +240,48 @@ function def(){
 }
 
 let S=def();
-let pending=null; // {team,name,g}
-let drag=null;    // {team,name,g,fromPi}
-let saving=false;
-let pollTimer=null;
+let currentRole=null,pendingRole=null;
+let pending=null,drag=null;
+let saving=false,pollTimer=null;
 
 // ---- TOAST ----
 function toast(msg){
   const t=document.getElementById('toast');
   t.textContent=msg;t.classList.add('show');
   clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+// ---- NAVIGATION ----
+function selectRole(role){
+  if(PASSWORDS[role]===null){currentRole=role;startApp();return;}
+  pendingRole=role;
+  document.getElementById('pin-title').textContent=role==='black'?'⚫ 黑隊密碼':'⚪ 白隊密碼';
+  document.getElementById('pin-err').textContent='';
+  document.getElementById('pin-input').value='';
+  document.getElementById('pin-modal').style.display='flex';
+  setTimeout(()=>document.getElementById('pin-input').focus(),100);
+}
+function submitPin(){
+  const v=document.getElementById('pin-input').value;
+  if(v===PASSWORDS[pendingRole]){currentRole=pendingRole;closePin();startApp();}
+  else{document.getElementById('pin-err').textContent='密碼錯誤';document.getElementById('pin-input').value='';}
+}
+function closePin(){document.getElementById('pin-modal').style.display='none';pendingRole=null;}
+function logout(){
+  stopPoll();currentRole=null;pending=null;drag=null;
+  document.getElementById('entry').style.display='flex';
+  document.getElementById('app').style.display='none';
+}
+async function startApp(){
+  document.getElementById('entry').style.display='none';
+  document.getElementById('app').style.display='block';
+  const labels={black:'⚫ 黑隊',white:'⚪ 白隊',host:'🎙️ 主持人'};
+  const classes={black:'tag-black',white:'tag-white',host:'tag-host'};
+  const t=document.getElementById('role-tag');
+  t.textContent=labels[currentRole];t.className='role-tag '+classes[currentRole];
+  const fresh=await apiLoad();
+  if(fresh)S=fresh;
+  render();startPoll();
 }
 
 // ---- SYNC ----
@@ -166,8 +296,7 @@ async function apiLoad(){
     const txt=await r.text();
     setSyncStatus('ok');
     if(!txt||txt==='{}'||!txt.trim())return null;
-    const d=JSON.parse(txt);
-    const df=def();
+    const d=JSON.parse(txt),df=def();
     if(!Array.isArray(d.black)||d.black.length!==6)d.black=df.black;
     if(!Array.isArray(d.white)||d.white.length!==6)d.white=df.white;
     if(!Array.isArray(d.revealed)||d.revealed.length!==6)d.revealed=df.revealed;
@@ -182,25 +311,17 @@ async function apiSave(){
     setSyncStatus('ok');
   }catch(e){setSyncStatus('err');}
 }
-
-// Save: pause poll, save, resume poll
 async function saveAndSync(){
-  saving=true;
-  stopPoll();
+  saving=true;stopPoll();
   await apiSave();
-  saving=false;
-  startPoll();
+  saving=false;startPoll();
 }
-
-// Poll: only update if not saving, and don't touch pending/drag state
 async function poll(){
   if(saving)return;
   const fresh=await apiLoad();
   if(saving||!fresh)return;
-  S=fresh;
-  render();
+  S=fresh;render();
 }
-
 function startPoll(){if(!pollTimer)pollTimer=setInterval(poll,POLL);}
 function stopPoll(){if(pollTimer){clearInterval(pollTimer);pollTimer=null;}}
 
@@ -220,16 +341,15 @@ function canAdd(team,pi,g){
   }
   return{ok:true};
 }
-function isUsed(team,name){
-  return S[team].some(slot=>slot.players.some(p=>p.name===name));
-}
+function countUsed(team,name){return S[team].reduce((n,s)=>n+(s.players.some(p=>p.name===name)?1:0),0);}
+function isUsed(team,name){return countUsed(team,name)>=2;}
 
-// ---- CLICK INTERACTION ----
+// ---- CLICK ----
 function onPoolChipClick(team,name,g){
-  if(isUsed(team,name)){toast('此選手已在場次中');return;}
+  const c=countUsed(team,name);
+  if(c>=2){toast('此選手已出現在 2 個場次（上限）');return;}
   if(pending&&pending.team===team&&pending.name===name){pending=null;render();return;}
-  pending={team,name,g};
-  render();
+  pending={team,name,g};render();
   toast('請點擊下方場次格子放入，或再點選手取消');
 }
 function onDropzoneClick(team,pi){
@@ -239,113 +359,131 @@ function onDropzoneClick(team,pi){
   if(!v.ok){toast(v.msg);pending=null;render();return;}
   if(S[team][pi].players.some(p=>p.name===name)){toast('已在此場次');pending=null;render();return;}
   S[team][pi].players.push({name,g});
-  pending=null;
-  render();
-  saveAndSync();
+  pending=null;render();saveAndSync();
 }
 function removePlayer(team,pi,name){
   if(S[team][pi].locked)return;
   S[team][pi].players=S[team][pi].players.filter(p=>p.name!==name);
-  render();
-  saveAndSync();
+  render();saveAndSync();
 }
 
 // ---- DRAG ----
 function dstart(e,team,name,g,fromPi){
-  drag={team,name,g,fromPi};
+  drag={team,name,g,fromPi};pending=null;
   e.dataTransfer.effectAllowed='move';
   e.dataTransfer.setData('application/json',JSON.stringify({team,name,g,fromPi}));
-  // clear pending when drag starts
-  pending=null;
   setTimeout(()=>e.target&&e.target.classList.add('dragging'),0);
 }
-function dend(e){
-  e.target&&e.target.classList.remove('dragging');
-  // drag variable cleared in ddrop; if no drop happened, just clear
-  drag=null;
-}
+function dend(e){e.target&&e.target.classList.remove('dragging');drag=null;}
 function dover(e,team,pi){
   if(!drag||drag.team!==team)return;
   const slot=S[team][pi];
   if(slot.locked)return;
-  // allow if slot not full, OR if dragging from this same slot
   const wouldAdd=!slot.players.some(p=>p.name===drag.name);
   if(wouldAdd&&slot.players.length>=2)return;
-  e.preventDefault();
-  e.stopPropagation();
+  e.preventDefault();e.stopPropagation();
   e.currentTarget.classList.add('hover');
 }
 function dleave(e){e.currentTarget.classList.remove('hover');}
 function ddrop(e,team,pi){
   e.currentTarget.classList.remove('hover');
-  e.preventDefault();
-  e.stopPropagation();
-  // read drag info
+  e.preventDefault();e.stopPropagation();
   let d=drag;
-  if(!d){
-    try{d=JSON.parse(e.dataTransfer.getData('application/json'));}catch(ex){return;}
-  }
+  if(!d){try{d=JSON.parse(e.dataTransfer.getData('application/json'));}catch(ex){return;}}
   drag=null;
   if(!d||d.team!==team)return;
   const{name,g,fromPi}=d;
-  // validate before touching state
   const alreadyHere=S[team][pi].players.some(p=>p.name===name);
   if(!alreadyHere){
     const v=canAdd(team,pi,g);
     if(!v.ok){toast(v.msg);return;}
   }
-  // remove from source slot (not pool: fromPi===null)
-  if(fromPi!==null&&fromPi!==undefined&&fromPi!==pi){
+  if(fromPi!==null&&fromPi!==undefined&&fromPi!==pi)
     S[team][fromPi].players=S[team][fromPi].players.filter(p=>p.name!==name);
-  }
-  // add to target
   if(!alreadyHere)S[team][pi].players.push({name,g});
-  render();
-  saveAndSync();
+  render();saveAndSync();
 }
 
-// ---- POINT ACTIONS ----
-async function lockPt(pi){
-  S.black[pi].locked=true;S.white[pi].locked=true;
+// ---- TEAM ACTIONS ----
+async function lockPt(team,pi){
+  S[team][pi].locked=true;
   render();await saveAndSync();
 }
-async function unlockPt(pi){
-  S.black[pi].locked=false;S.white[pi].locked=false;
+async function unlockPt(team,pi){
+  // 不允許在已公布後解鎖
+  if(S.revealed[pi]){toast('已公布，不可再修改');return;}
+  S[team][pi].locked=false;
   render();await saveAndSync();
 }
+
+// ---- HOST ACTIONS ----
 async function revealPt(pi){
-  S.revealed[pi]=true;render();await saveAndSync();
+  S.revealed[pi]=true;
+  render();await saveAndSync();
 }
 async function adjScore(pi,team,delta){
   S.scores[pi][team]=Math.max(0,Math.min(11,S.scores[pi][team]+delta));
   render();await saveAndSync();
 }
 async function resetAll(){
-  if(!confirm('確定要重設所有資料？'))return;
-  S=def();pending=null;drag=null;render();await saveAndSync();
+  showConfirm('確定要重設所有資料？此動作無法復原。', async()=>{
+    S=def();pending=null;drag=null;render();await saveAndSync();
+  });
+}
+function showConfirm(msg, onOk){
+  document.getElementById('confirm-msg').textContent=msg;
+  document.getElementById('confirm-modal').style.display='flex';
+  document.getElementById('confirm-ok').onclick=()=>{
+    document.getElementById('confirm-modal').style.display='none';
+    onOk();
+  };
+  document.getElementById('confirm-cancel').onclick=()=>{
+    document.getElementById('confirm-modal').style.display='none';
+  };
 }
 
 // ---- RENDER ----
 function render(){
-  // scoreboard
-  let bt=0,wt=0;
-  S.scores.forEach(s=>{if(s.black===11)bt++;if(s.white===11)wt++;});
-  document.getElementById('sb-b').textContent=bt;
-  document.getElementById('sb-w').textContent=wt;
-  const done=bt+wt===6||bt>=4||wt>=4;
-  document.getElementById('champ').textContent=done
-    ?(bt>wt?'🏆 黑隊獲勝！':wt>bt?'🏆 白隊獲勝！':'⚡ 3:3 平手！加賽驟死賽！'):'';
-
-  renderPool('black',BM);
-  renderPool('white',WM);
-  renderPoints();
+  if(!currentRole)return;
+  if(currentRole==='host')renderHost();
+  else renderTeamFill(currentRole);
 }
 
-function renderPool(team,members){
-  const el=document.getElementById('pool-'+team);
+function scoreboardHtml(){
+  // 小分制：加總所有場次實際得分
+  let bt=0,wt=0;
+  S.scores.forEach(s=>{bt+=s.black;wt+=s.white;});
+  // 判斷勝負：6場都有分數才顯示
+  const allRevealed=S.revealed.every(r=>r);
+  let champ='';
+  if(allRevealed){
+    if(bt>wt)champ='🏆 黑隊獲勝！總分 '+bt+' : '+wt;
+    else if(wt>bt)champ='🏆 白隊獲勝！總分 '+wt+' : '+bt;
+    else champ='⚡ 平手！'+bt+' : '+wt+'，加賽驟死！';
+  }
+  // 每場小分明細
+  const details=S.scores.map((s,i)=>{
+    if(!S.revealed[i])return'';
+    const bw=s.black>s.white?'<span style="color:var(--bt);font-weight:700">'+s.black+'</span>':''+s.black;
+    const ww=s.white>s.black?'<span style="color:var(--wt);font-weight:700">'+s.white+'</span>':''+s.white;
+    return'<span style="font-size:.7rem;color:var(--muted)">P'+(i+1)+': '+bw+'-'+ww+'</span>';
+  }).filter(Boolean).join(' ');
+  return `<div class="scoreboard">
+    <div class="sb-col"><div class="sb-lbl">⚫ 黑隊總分</div><div class="sb-num sb-b">${bt}</div></div>
+    <div class="sb-vs">:</div>
+    <div class="sb-col"><div class="sb-lbl">⚪ 白隊總分</div><div class="sb-num sb-w">${wt}</div></div>
+  </div>
+  ${details?'<div style="text-align:center;margin-bottom:8px;display:flex;flex-wrap:wrap;justify-content:center;gap:6px">'+details+'</div>':''}
+  <div class="champ">${champ}</div>`;
+}
+
+// ---- TEAM FILL ----
+function renderTeamFill(team){
+  const members=team==='black'?BM:WM;
   const pend=pending&&pending.team===team?pending.name:null;
-  el.innerHTML=members.map(m=>{
-    const used=isUsed(team,m.name);
+  const poolChips=members.map(m=>{
+    const usedCount=countUsed(team,m.name);
+    const used=usedCount>=2;
     let cls='chip';
     if(used)cls+=' used';
     else if(pend===m.name)cls+=' pending';
@@ -354,80 +492,127 @@ function renderPool(team,members){
         ondragstart="event.stopPropagation();dstart(event,'${team}','${m.name}','${m.g}',null)"
         ondragend="dend(event)"
         onclick="onPoolChipClick('${team}','${m.name}','${m.g}')"`:''}>
-      <span class="gdot ${m.g==='M'?'gm':'gf'}"></span>${m.name}
+      <span class="gdot ${m.g==='M'?'gm':'gf'}"></span>${m.name}${usedCount===1?' <span style="font-size:.65rem;color:var(--warn)">(1/2)</span>':''}
     </span>`;
   }).join('');
-}
 
-function renderPoints(){
-  let html='';
+  let html=`<div class="pool-box">
+    <div class="pool-title">${team==='black'?'⚫ 黑隊':'⚪ 白隊'}選手（點擊或拖拉加入場次）</div>
+    <div class="pool-chips">${poolChips}</div>
+  </div><div class="sec-title">場次排點</div>`;
+
   PD.forEach((pd,pi)=>{
-    const bs=S.black[pi],ws=S.white[pi];
-    const locked=bs.locked||ws.locked;
+    const slot=S[team][pi];
+    const locked=slot.locked;
     const rev=S.revealed[pi];
-    const sc=S.scores[pi];
-    const bWin=sc.black===11,wWin=sc.white===11;
-    const canLock=bs.players.length===2&&ws.players.length===2&&!locked;
-    const badge=rev?'<span class="badge b-pub">已公布</span>'
+    const full=slot.players.length>=2;
+    let dzCls='dropzone';
+    if(locked||rev)dzCls+=' locked';
+    else if(full)dzCls+=' full';
+
+    const chips=slot.players.map(p=>{
+      const sc=team==='black'?'b-sel':'w-sel';
+      const rm=(!locked&&!rev)?`<span class="rm" onclick="event.stopPropagation();removePlayer('${team}',${pi},'${p.name}')">✕</span>`:'';
+      return `<span class="chip ${sc}" ${(!locked&&!rev)?`draggable="true"
+        ondragstart="event.stopPropagation();dstart(event,'${team}','${p.name}','${p.g}',${pi})"
+        ondragend="dend(event)"
+        ondragover="event.stopPropagation();"
+        ondrop="event.stopPropagation();"
+        onclick="event.stopPropagation();"`:''}>
+        ${rm}<span class="gdot ${p.g==='M'?'gm':'gf'}"></span>${p.name}</span>`;
+    }).join('');
+
+    const hint=slot.players.length===0
+      ?`<span class="dz-hint">${rev?'已公布':locked?'已鎖定':pend?'點此放入':'拖入或點擊選手'}</span>`:'' ;
+
+    let badge=rev?'<span class="badge b-pub">已公布</span>'
       :locked?'<span class="badge b-lock">🔒 已鎖定</span>'
-      :'<span class="badge b-open">排陣中</span>';
+      :'<span class="badge b-open">填寫中</span>';
+
+    const canLock=slot.players.length===2&&!locked&&!rev;
 
     html+=`<div class="pt-card">
       <div class="pt-hdr">
         <div class="pt-hdr-l"><h4>${pd.label}</h4><span>${pd.type}</span></div>
         ${badge}
       </div>
-      <div class="pt-body">
-        ${dzHtml('black',pi,locked)}
+      <div style="padding:11px 12px">
+        <div class="${dzCls}"
+          onclick="onDropzoneClick('${team}',${pi})"
+          ondragover="dover(event,'${team}',${pi})"
+          ondragleave="dleave(event)"
+          ondrop="ddrop(event,'${team}',${pi})">
+          ${hint}${chips}
+        </div>
+      </div>
+      <div class="pt-actions">
+        ${rev?'<span style="font-size:.8rem;color:var(--muted)">已公布，無法修改</span>'
+          :locked
+            ?`<button class="act a-unlock" onclick="unlockPt('${team}',${pi})">解鎖修改</button>`
+            :`<button class="act a-lock" onclick="lockPt('${team}',${pi})" ${canLock?'':'disabled'}>🔒 鎖定本點</button>`}
+      </div>
+    </div>`;
+  });
+
+  document.getElementById('app-wrap').innerHTML=html;
+}
+
+// ---- HOST ----
+function renderHost(){
+  let html=scoreboardHtml()+`<div class="sec-title">各點管理</div>`;
+
+  PD.forEach((pd,pi)=>{
+    const bs=S.black[pi],ws=S.white[pi];
+    const rev=S.revealed[pi];
+    const sc=S.scores[pi];
+    const bWin=sc.black===11,wWin=sc.white===11;
+    const bothLocked=bs.locked&&ws.locked;
+
+    const bBadge=`<span class="badge ${bs.locked?'b-pub':'b-open'}" style="font-size:.62rem">黑${bs.locked?'✓':'…'}</span>`;
+    const wBadge=`<span class="badge ${ws.locked?'b-pub':'b-open'}" style="font-size:.62rem">白${ws.locked?'✓':'…'}</span>`;
+    const mainBadge=rev?'<span class="badge b-pub">已公布</span>'
+      :bothLocked?'<span class="badge b-lock">待公布</span>'
+      :'<span class="badge b-wait">排陣中</span>';
+
+    html+=`<div class="pt-card">
+      <div class="pt-hdr">
+        <div class="pt-hdr-l"><h4>${pd.label}</h4><span>${pd.type}</span></div>
+        <div style="display:flex;gap:5px;align-items:center">${bBadge}${wBadge}${mainBadge}</div>
+      </div>
+      <div class="host-body">
+        <div class="slot-col">
+          <div class="slot-lbl">⚫ 黑隊</div>
+          <div class="dropzone locked" style="cursor:default">
+            ${rev
+              ?bs.players.map(p=>`<span class="chip b-sel"><span class="gdot ${p.g==='M'?'gm':'gf'}"></span>${p.name}</span>`).join('')
+              :`<span class="dz-hint">${bs.locked?'🔒 已鎖定':'等待填寫…'}</span>`}
+          </div>
+        </div>
         <div class="mid-col">
           <div class="vs">VS</div>
           ${rev?scHtml(pi,sc,bWin,wWin):''}
         </div>
-        ${dzHtml('white',pi,locked)}
+        <div class="slot-col">
+          <div class="slot-lbl">⚪ 白隊</div>
+          <div class="dropzone locked" style="cursor:default">
+            ${rev
+              ?ws.players.map(p=>`<span class="chip w-sel"><span class="gdot ${p.g==='M'?'gm':'gf'}"></span>${p.name}</span>`).join('')
+              :`<span class="dz-hint">${ws.locked?'🔒 已鎖定':'等待填寫…'}</span>`}
+          </div>
+        </div>
       </div>
       <div class="pt-actions">
-        ${!locked?`<button class="act a-lock" onclick="lockPt(${pi})" ${canLock?'':'disabled'}>🔒 鎖定本點</button>`:''}
-        ${locked&&!rev?`<button class="act a-reveal" onclick="revealPt(${pi})">📢 公布名單</button>
-          <button class="act a-unlock" onclick="unlockPt(${pi})">解鎖修改</button>`:''}
-        ${rev?`<button class="act a-unlock" style="max-width:110px" onclick="unlockPt(${pi})">解鎖重排</button>`:''}
+        ${rev
+          ?'<span style="font-size:.8rem;color:var(--muted)">已公布，無法修改</span>'
+          :bothLocked
+            ?`<button class="act a-reveal" onclick="revealPt(${pi})">📢 公布名單</button>`
+            :`<button class="act" style="background:var(--surface2);color:var(--muted)" disabled>等待雙方鎖定…</button>`}
       </div>
     </div>`;
   });
-  document.getElementById('pts').innerHTML=html;
-}
 
-function dzHtml(team,pi,locked){
-  const slot=S[team][pi];
-  const full=slot.players.length>=2;
-  const hasPending=pending&&pending.team===team&&!locked;
-  let cls='dropzone';
-  if(locked)cls+=' locked';
-  else if(full)cls+=' full';
-
-  const chips=slot.players.map(p=>{
-    const sc=team==='black'?'b-sel':'w-sel';
-    const rm=!locked?`<span class="rm" onclick="event.stopPropagation();removePlayer('${team}',${pi},'${p.name}')">✕</span>`:'';
-    return `<span class="chip ${sc}"
-      ondragstart="event.stopPropagation();dstart(event,'${team}','${p.name}','${p.g}',${pi})"
-      ondragend="dend(event)"
-      ondragover="event.stopPropagation();"
-      ondrop="event.stopPropagation();"
-      onclick="event.stopPropagation();"
-      ${!locked?'draggable="true"':''}>${rm}<span class="gdot ${p.g==='M'?'gm':'gf'}"></span>${p.name}</span>`;
-  }).join('');
-
-  const hint=slot.players.length===0?`<span class="dz-hint">${hasPending?'點此放入':'拖入或點擊選手'}</span>`:'';
-
-  return `<div class="slot-col">
-    <div class="slot-lbl">${team==='black'?'⚫ 黑隊':'⚪ 白隊'}</div>
-    <div class="${cls}"
-      onclick="onDropzoneClick('${team}',${pi})"
-      ondragover="dover(event,'${team}',${pi})"
-      ondragleave="dleave(event)"
-      ondrop="ddrop(event,'${team}',${pi})">
-      ${hint}${chips}
-    </div>
-  </div>`;
+  html+=`<button class="reset-btn" onclick="resetAll()">🔄 重設所有資料</button>`;
+  document.getElementById('app-wrap').innerHTML=html;
 }
 
 function scHtml(pi,sc,bWin,wWin){
@@ -452,14 +637,6 @@ function scHtml(pi,sc,bWin,wWin){
     </div>
   </div>`;
 }
-
-// ---- INIT ----
-(async()=>{
-  const fresh=await apiLoad();
-  if(fresh)S=fresh;
-  render();
-  startPoll();
-})();
 </script>
 </body>
 </html>
