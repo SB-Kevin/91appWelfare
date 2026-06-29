@@ -201,9 +201,9 @@
 </div>
 
 <script>
-const API = 'https://script.google.com/macros/s/AKfycbwK8hRwckqINk50LPyQ3JuIAn_u7niIRpQJC1pyE1vywNfYTy7QnpXCrpRhuzMoiLxlmA/exec';
 const PASSWORDS = {black:'A1234', white:'B9876', host:null, audience:null};
 const POLL_MS = 4000;
+const STORAGE_KEY = 'pickleball-2026-data';
 
 const BLACK_MEMBERS = [
   {name:'Luke',g:'M'},{name:'Kevin',g:'M'},{name:'Wade',g:'M'},
@@ -238,7 +238,7 @@ function defaultData(){
   };
 }
 
-// ---- API ----
+// ---- STORAGE ----
 function setSyncStatus(s){
   const d=document.getElementById('sync-dot');
   if(!d)return;
@@ -248,12 +248,14 @@ function setSyncStatus(s){
 async function loadData(){
   setSyncStatus('syncing');
   try{
-    const r=await fetch(API+'?action=load',{cache:'no-store',redirect:'follow'});
-    const txt=await r.text();
+    let result=null;
+    if(window.storage){
+      result=await window.storage.get(STORAGE_KEY,true);
+    }
     setSyncStatus('ok');
-    if(!txt||txt==='{}'||txt==='')return defaultData();
+    if(!result||!result.value)return defaultData();
     try{
-      const d=JSON.parse(txt);
+      const d=JSON.parse(result.value);
       const def=defaultData();
       if(!d.black||d.black.length!==6)d.black=def.black;
       if(!d.white||d.white.length!==6)d.white=def.white;
@@ -261,14 +263,19 @@ async function loadData(){
       if(!d.scores||d.scores.length!==6)d.scores=def.scores;
       return d;
     }catch(e){return defaultData();}
-  }catch(e){setSyncStatus('error');return defaultData();}
+  }catch(e){
+    // key not found or storage unavailable — return defaults
+    setSyncStatus('ok');
+    return defaultData();
+  }
 }
 
 async function saveData(data){
   setSyncStatus('syncing');
   try{
-    const encoded=encodeURIComponent(JSON.stringify(data));
-    await fetch(API+'?action=save&data='+encoded,{cache:'no-store',redirect:'follow'});
+    if(window.storage){
+      await window.storage.set(STORAGE_KEY,JSON.stringify(data),true);
+    }
     setSyncStatus('ok');
   }catch(e){setSyncStatus('error');}
 }
