@@ -68,9 +68,15 @@ function readResults_() {
   readTable_('results').forEach(r => {
     const id = String(r.matchId || '').trim();
     if (!id) return;
-    out[id] = { winner: String(r.winner||'').trim(), score: String(r.score||'').trim(), pk: String(r.pk||'').trim() };
+    out[id] = { winner: String(r.winner||'').trim(), score: fixScore_(r.score), pk: fixScore_(r.pk) };
   });
   return out;
+}
+
+// 修復：Google Sheet 常把 "1-1"、"2-3" 自動轉成日期，讀回是 Date 物件，這裡還原成 "月-日"
+function fixScore_(v) {
+  if (v instanceof Date) return (v.getMonth() + 1) + '-' + v.getDate();
+  return String(v || '').trim();
 }
 
 function readMeta_() {
@@ -128,8 +134,9 @@ function applyWrite_(body) {
       const id = String(r.matchId || '').trim(); if (!id) return;
       let row = rowById[id];
       if (!row) { row = sh.getLastRow() + 1; sh.getRange(row, col('matchId') + 1).setValue(id); rowById[id] = row; }
-      const set = (f, v) => { if (v !== undefined && col(f) >= 0) sh.getRange(row, col(f) + 1).setValue(v); };
-      set('winner', r.winner); set('score', r.score); set('pk', r.pk);
+      // score/pk 先設「純文字」格式再寫入，避免 "1-1" 被 Sheet 自動轉成日期
+      const setText = (f, v) => { if (v !== undefined && col(f) >= 0) { const c = sh.getRange(row, col(f) + 1); c.setNumberFormat('@'); c.setValue(String(v)); } };
+      setText('winner', r.winner); setText('score', r.score); setText('pk', r.pk);
     });
   }
   // teams（依 code upsert；32 強對戰公布後寫入真實隊伍）

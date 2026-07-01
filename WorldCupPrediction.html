@@ -78,7 +78,10 @@
   }
   .team:last-child{border-bottom:none;}
   .team .flag{font-size:22px; line-height:1; width:26px; text-align:center;}
-  .team .name{font-weight:700; font-size:15px; flex:1; white-space:nowrap;}
+  .team .name{font-weight:700; font-size:15px; flex:0 1 auto; white-space:nowrap; min-width:0; overflow:hidden; text-overflow:ellipsis;}
+  .team .sp{flex:1 1 auto; min-width:4px;}
+  .team .outtag{flex:none; transform:rotate(-6deg); background:var(--red); color:#fff; font-size:10px;
+    font-weight:900; padding:1px 6px; border-radius:5px; letter-spacing:1px; margin-left:6px;}
   .team .pred{
     display:inline-flex; align-items:center; gap:3px; font-size:12px; font-weight:800; color:#fff;
     background:linear-gradient(120deg,#4b6cb7,#3a5fb0); padding:3px 8px; border-radius:999px;
@@ -98,8 +101,6 @@
   @keyframes pop{0%{transform:scale(1);}40%{transform:scale(1.07);}100%{transform:scale(1);}}
   .team.out{opacity:.45; filter:grayscale(1);}
   .team.out .name{text-decoration:line-through;}
-  .team.out::after{content:"OUT"; position:absolute; right:10px; top:50%; transform:translateY(-50%) rotate(-8deg);
-    background:var(--red); color:#fff; font-size:11px; font-weight:900; padding:2px 7px; border-radius:5px; letter-spacing:1px;}
   .team.out.anim{animation:shake .5s ease;}
   @keyframes shake{0%,100%{transform:translateX(0);}20%{transform:translateX(-7px);}40%{transform:translateX(6px);}60%{transform:translateX(-4px);}80%{transform:translateX(3px);}}
   .team.advancing{animation:flyin .55s cubic-bezier(.2,.9,.3,1.3);}
@@ -300,13 +301,15 @@ const CONFIG = {
   SITE_URL: "",
   // 活動辦法與獎品（可自由修改）
   ACTIVITY: {
-    period: "2026/7/1 – 7/20",
+    period: "2026/7/1 – 7/24",
     fundPerPerson: 100,   // 每位參與者，福委會贊助的運動基金（元）
     howto: [
-      "每位參與者填寫預測表單，選出心中的世界盃冠軍隊伍。",
+      "每位參與者填寫預測表單，選出心中的世界盃冠軍隊伍，<b>凡參加即送摩曼頓全館 7 折員購券</b>。",
       "每有 1 人參與預測，福委會即贊助 100 元運動基金，累積成總獎品池。",
       "賽事期間本頁每日自動更新晉級結果。",
-      "最後成功預測冠軍的參與者們，平分全部運動用品折抵券（平分金額四捨五入至百位）。"
+      "最後成功預測冠軍的參與者們，平分全部運動用品折抵券（平分金額四捨五入至 50 進位）。",
+      "折價券一律於 7/24 12:00 後陸續發放。",
+      "2 種券的使用期限皆為 2026/8/31，逾期不予重發。"
     ],
     note: "獎品池金額依實際參與人數計算；平分方式以福委會公告為準。"
   }
@@ -643,15 +646,20 @@ function teamEl(id,code,st,slot){
   if(st.winner===code) d.classList.add("win");
   if(st.winner && st.winner!==code) d.classList.add("out");
   let goal="";
-  if(SCORES[id]){
-    const parts=SCORES[id].split("|");
+  const sc=SCORES[id]?String(SCORES[id]).trim():"";
+  if(/^\d{1,2}-\d{1,2}(\|\d{1,2}-\d{1,2})?$/.test(sc)){  // 僅接受 "x-y" 或 "x-y|a-b"；過濾被 Sheet 轉成日期等髒值，避免破版
+    const parts=sc.split("|");
     const reg=parts[0].split("-")[slot];
     const pk=parts[1]?parts[1].split("-")[slot]:null;
     if(reg!==undefined) goal=`<span class="goal">${reg}${pk!=null?`<span class="pk">(${pk})</span>`:""}</span>`;
   }
+  const isOut=(st.winner && st.winner!==code);
   const cnt=(PRED[code]||[]).length;
-  const badge=cnt>0?`<span class="pred" data-code="${code}">👤 ${cnt}</span>`:"";
-  d.innerHTML=`<span class="flag">${TEAMS[code].f}</span><span class="name">${TEAMS[code].n}</span>${goal}${badge}`;
+  const badge=(cnt>0 && !isOut)?`<span class="pred" data-code="${code}">👤 ${cnt}</span>`:"";  // 已淘汰列不顯示預測人數，避免與 OUT＋比分擠在一起
+  const outTag=isOut?`<span class="outtag">OUT</span>`:"";
+  const nlen=[...TEAMS[code].n].length;                 // 依國名長度自動縮字，長名（如波士尼亞與赫塞哥維納）才塞得下 OUT＋比分
+  const nfs=nlen>=9?11:nlen>=7?12.5:nlen>=5?13.5:15;
+  d.innerHTML=`<span class="flag">${TEAMS[code].f}</span><span class="name" style="font-size:${nfs}px">${TEAMS[code].n}</span>${outTag}<span class="sp"></span>${badge}${goal}`;
   const pb=d.querySelector(".pred"); if(pb) pb.addEventListener("click",e=>{e.stopPropagation(); openPredictors(code);});
   if(PLAYERS[code]){ d.style.cursor="pointer"; d.title="點擊看 "+TEAMS[code].n+" 關鍵球星"; d.addEventListener("click",()=>openPlayers(code)); }
   return d;
