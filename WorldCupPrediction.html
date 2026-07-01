@@ -78,6 +78,9 @@
   }
   .team:last-child{border-bottom:none;}
   .team .flag{font-size:22px; line-height:1; width:26px; text-align:center;}
+  /* 國旗改用圖片（Windows/Android 無法顯示區域指示符 emoji 國旗），依所在容器 font-size 自動縮放 */
+  img.flagimg{height:1em; width:auto !important; vertical-align:-0.16em; border-radius:3px;
+    box-shadow:0 0 0 .5px rgba(0,0,0,.28); object-fit:cover; background:#e9edf5; flex:none;}
   .team .name{font-weight:700; font-size:15px; flex:0 1 auto; white-space:nowrap; min-width:0; overflow:hidden; text-overflow:ellipsis;}
   .team .sp{flex:1 1 auto; min-width:4px;}
   .team .outtag{flex:none; transform:rotate(-6deg); background:var(--red); color:#fff; font-size:10px;
@@ -171,13 +174,6 @@
   .fund-amt{font-size:34px; font-weight:900; color:#9a6b00; margin:2px 0 6px; line-height:1;}
   .fund-row{font-size:13px; font-weight:700; margin:2px 0;}
   .fund-hit{margin-top:8px; padding-top:8px; border-top:1px dashed #d4af37; font-size:15px; font-weight:800; color:#00713a;}
-  /* share */
-  .share-pick{display:flex; flex-wrap:wrap; gap:6px; padding:8px 16px;}
-  .pick-chip{display:inline-flex; align-items:center; gap:4px; padding:5px 9px; border-radius:999px; background:#eef3fc; font-size:13px; font-weight:700; cursor:pointer; border:2px solid transparent;}
-  .pick-chip:hover{background:#e2ebfb;}
-  .pick-chip.active{background:linear-gradient(120deg,#0066ff,#00b09b); color:#fff;}
-  .pick-chip .tf{font-size:15px;}
-  .share-actions{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; padding:8px 16px;}
   /* 手機版優化 */
   @media (max-width:640px){
     header{padding:16px 10px 8px;}
@@ -297,19 +293,18 @@ const CONFIG = {
   SHEET_NAME: "工作表1",
   // 預測表單連結（Google 表單）；可由 Google Sheet 的 meta.form_url 覆寫
   FORM_URL: "https://forms.gle/TVDKMVTvtuWJ62Hn8",
-  // 本活動頁公開網址（分享卡與 QR Code 用）；留空則用目前網址
-  SITE_URL: "",
   // 活動辦法與獎品（可自由修改）
   ACTIVITY: {
     period: "2026/7/1 – 7/24",
     fundPerPerson: 100,   // 每位參與者，福委會贊助的運動基金（元）
     howto: [
-      "每位參與者填寫預測表單，選出心中的世界盃冠軍隊伍，<b>凡參加即送摩曼頓全館 7 折員購券</b>。",
-      "每有 1 人參與預測，福委會即贊助 100 元運動基金，累積成總獎品池。",
-      "賽事期間本頁每日自動更新晉級結果。",
-      "最後成功預測冠軍的參與者們，平分全部運動用品折抵券（平分金額四捨五入至 50 進位）。",
+      "每位參與者填寫預測表單，選出心中的世界盃冠軍隊伍，<b>凡參加即送由摩曼頓贊助的全館 7 折員購券</b>。",
+      "每有 1 人參與預測，福委會即贊助 100 元至預測總獎品池。",
+      "最後成功預測冠軍的參與者們，平分摩曼頓運動用品加碼折抵券（平分金額四捨五入至 50 進位）。",
       "折價券一律於 7/24 12:00 後陸續發放。",
-      "2 種券的使用期限皆為 2026/8/31，逾期不予重發。"
+      "2 種券的使用期限皆為 2026/8/31，逾期不予重發。",
+      "賽事期間本頁每日自動更新晉級結果。",
+      "預測截止時間請看首頁。"
     ],
     note: "獎品池金額依實際參與人數計算；平分方式以福委會公告為準。"
   }
@@ -610,7 +605,7 @@ function render(){
   cw.innerHTML=`<div class="champ-box ${champ?'lit':''}">
       <span class="cap">🏆 冠軍</span>
       <span class="trophy">${TROPHY_SVG}</span>
-      <span class="cflag">${champ?TEAMS[champ].f:"❔"}</span>
+      ${champ?flagImg(TEAMS[champ].f,"cflag"):'<span class="cflag">❔</span>'}
       <div class="cname">${champ?TEAMS[champ].n:"未產生"}</div>
     </div>`;
   cc.appendChild(cw);
@@ -637,6 +632,21 @@ function matchEl(id){
   wrap.appendChild(card);
   return wrap;
 }
+// 國旗 emoji → 圖片（Windows/Android 不支援 emoji 國旗，會退化成 ZA/CA 文字）
+function flagImg(f,cls){
+  cls=(cls===undefined?"flag":cls);
+  const cps=[...String(f||"")].map(c=>c.codePointAt(0));
+  let iso="";
+  const ri=cps.filter(c=>c>=0x1F1E6&&c<=0x1F1FF);   // 一般國旗＝兩個區域指示字母
+  if(ri.length===2){
+    iso=ri.map(c=>String.fromCharCode(97+(c-0x1F1E6))).join("");
+  } else if(cps[0]===0x1F3F4){                        // 子國旗（英格蘭/蘇格蘭/威爾斯）＝tag 序列
+    const tag=cps.filter(c=>c>=0xE0061&&c<=0xE007A).map(c=>String.fromCharCode(c-0xE0000)).join("");
+    if(tag.length>=4) iso=tag.slice(0,2)+"-"+tag.slice(2);   // gbeng → gb-eng
+  }
+  if(iso) return `<img class="${cls} flagimg" src="flags/${iso}.svg" onerror="this.onerror=null;this.src='https://flagcdn.com/h80/${iso}.png'" alt="" loading="lazy">`;
+  return `<span class="${cls}">${f||""}</span>`;   // 非國旗 emoji（⚽/❔ 等）維持原樣
+}
 function teamEl(id,code,st,slot){
   const d=document.createElement("div");
   if(!code){d.className="team empty"; d.innerHTML='<span class="flag">·</span><span class="name">待晉級</span>'; return d;}
@@ -659,7 +669,7 @@ function teamEl(id,code,st,slot){
   const outTag=isOut?`<span class="outtag">OUT</span>`:"";
   const nlen=[...TEAMS[code].n].length;                 // 依國名長度自動縮字，長名（如波士尼亞與赫塞哥維納）才塞得下 OUT＋比分
   const nfs=nlen>=9?11:nlen>=7?12.5:nlen>=5?13.5:15;
-  d.innerHTML=`<span class="flag">${TEAMS[code].f}</span><span class="name" style="font-size:${nfs}px">${TEAMS[code].n}</span>${outTag}<span class="sp"></span>${badge}${goal}`;
+  d.innerHTML=`${flagImg(TEAMS[code].f)}<span class="name" style="font-size:${nfs}px">${TEAMS[code].n}</span>${outTag}<span class="sp"></span>${badge}${goal}`;
   const pb=d.querySelector(".pred"); if(pb) pb.addEventListener("click",e=>{e.stopPropagation(); openPredictors(code);});
   if(PLAYERS[code]){ d.style.cursor="pointer"; d.title="點擊看 "+TEAMS[code].n+" 關鍵球星"; d.addEventListener("click",()=>openPlayers(code)); }
   return d;
@@ -720,7 +730,7 @@ async function revealSequence(){
 const overlay=document.getElementById("overlay");
 function openPredictors(code){
   const T=TEAMS[code]||{n:code,f:"⚽"};
-  document.getElementById("mFlag").textContent=T.f;
+  document.getElementById("mFlag").innerHTML=flagImg(T.f,"");
   document.getElementById("mName").textContent=T.n;
   const list=PRED[code]||[];
   document.getElementById("mSub").textContent="共 "+list.length+" 人預測此隊奪冠";
@@ -746,7 +756,7 @@ document.getElementById("rankBtn").onclick=()=>{
   arr.forEach(([code,n],i)=>{
     const nm=TEAMS[code]?TEAMS[code].n:code, fl=TEAMS[code]?TEAMS[code].f:"⚽";
     const row=document.createElement("div"); row.className="rankrow";
-    row.innerHTML=`<span class="rk">${i+1}</span><span class="rflag">${fl}</span>
+    row.innerHTML=`<span class="rk">${i+1}</span>${flagImg(fl,"rflag")}
       <span class="rname">${nm}</span>
       <span class="bar"><i style="width:${n/max*100}%"></i></span><span class="rc">${n}</span>`;
     row.onclick=()=>{rankOverlay.classList.remove("show"); openPredictors(code);};
@@ -765,7 +775,7 @@ function renderTeamTabs(active){
     const b=document.createElement("span");
     b.className="team-tab"+(code===active?" active":"");
     const T=TEAMS[code]||{n:code,f:"⚽"};
-    b.innerHTML=`<span class="tf">${T.f}</span>${T.n}`;
+    b.innerHTML=`${flagImg(T.f,"tf")}${T.n}`;
     b.onclick=()=>showPlayers(code);
     tabs.appendChild(b);
   });
@@ -775,7 +785,7 @@ function showPlayers(code){
   const data=PLAYERS[code]||{list:[],blurb:""};
   const T=TEAMS[code]||{n:code,f:"⚽"};
   const body=document.getElementById("playerBody");
-  let html=`<div class="pteam-head"><span class="pf">${T.f}</span>
+  let html=`<div class="pteam-head">${flagImg(T.f,"pf")}
     <div><div class="pn">${T.n}</div><div class="pb">${data.blurb||""}</div></div></div>`;
   if(!data.list.length){ html+=`<div class="empty-note">尚無球星資料。</div>`; }
   const toLoad=[];
@@ -818,7 +828,6 @@ document.getElementById("pClose").onclick=()=>playerOverlay.classList.remove("sh
 playerOverlay.onclick=e=>{if(e.target===playerOverlay)playerOverlay.classList.remove("show");};
 
 /* 立即預測 CTA */
-function siteUrl(){ return CONFIG.SITE_URL || location.href; }
 document.getElementById("predictBtn").onclick=()=>{
   if(CONFIG.FORM_URL) window.open(CONFIG.FORM_URL,"_blank","noopener");
   else alert("尚未設定預測表單連結。\n請在檔案設定區 CONFIG.FORM_URL 填入你的 Google 表單網址。");
@@ -833,12 +842,12 @@ function buildActivity(){
   const fund=people*per;
   const champ=state.champ;
   const winners=champ?(PRED[champ]?PRED[champ].length:0):0;
-  const share=winners?Math.round(fund/winners/100)*100:0;  // 四捨五入至百位
+  const share=winners?Math.round(fund/winners/50)*50:0;  // 四捨五入至 50 進位
   const fmt=n=>"NT$"+Number(n).toLocaleString("en-US");
   const fundExtra = champ
-    ? `<div class="fund-row">🏆 冠軍：<b>${TEAMS[champ].f} ${TEAMS[champ].n}</b></div>
+    ? `<div class="fund-row">🏆 冠軍：${flagImg(TEAMS[champ].f,"")} <b>${TEAMS[champ].n}</b></div>
        <div class="fund-row">🎯 命中人數：<b>${winners}</b> 人</div>
-       <div class="fund-hit">每人可分得運動用品折抵券約 <b>${fmt(share)}</b><br><span style="font-weight:600;font-size:12px;">（${fmt(fund)} ÷ ${winners}，四捨五入至百位）</span></div>`
+       <div class="fund-hit">每人可分得運動用品折抵券約 <b>${fmt(share)}</b><br><span style="font-weight:600;font-size:12px;">（${fmt(fund)} ÷ ${winners}，四捨五入至 50 進位）</span></div>`
     : `<div class="fund-row">冠軍產生後，由命中的參與者平分全部獎品池（折抵券）</div>`;
   document.getElementById("actBody").innerHTML=`
     <div class="act-sec"><div class="act-h">🗓 活動期間</div><div class="act-p">${a.period||"—"}</div></div>
