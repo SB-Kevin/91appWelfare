@@ -42,7 +42,11 @@
   .notice .hl-sub{font-weight:800; margin:6px 0 2px;}
   .notice .hl-step{margin:3px 0; line-height:1.65;}
   .notice .hl-step b{color:var(--green);}
-  .toolbar{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:18px auto 6px;}
+  .toolbar{display:flex; gap:14px; justify-content:center; align-items:stretch; flex-wrap:wrap; margin:18px auto 6px;}
+  .tbgroup{display:flex; flex-direction:column; align-items:center; gap:8px; padding:10px 14px 12px;
+    background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); border-radius:14px;}
+  .tbgroup-row{display:flex; gap:10px; flex-wrap:wrap; justify-content:center;}
+  .tbgroup-lbl{font-size:11px; font-weight:800; letter-spacing:2px; color:#d7d0bc;}
   .btn{border:none; cursor:pointer; font-weight:800; font-size:15px; color:#fff; padding:11px 20px; border-radius:999px; box-shadow:var(--shadow); transition:transform .12s;}
   .btn:active{transform:scale(.94);}
   /* 主 CTA：官方金色；其餘採主辦三色 美國藍／加拿大紅／墨西哥綠 */
@@ -51,6 +55,7 @@
   .btn-rank{background:linear-gradient(120deg,#2a7de1,#0a3d91);}
   .btn-star{background:linear-gradient(120deg,#ff3b4e,#c1001f);}
   .btn-gift{background:linear-gradient(120deg,#10b65f,#00713a);}
+  .btn-news{background:linear-gradient(120deg,#f0a92b,#d4820c); color:#2a1a00;}
   .hint{text-align:center;color:#e2dcca;font-size:13px;margin:4px 0 8px;}
   .datasrc{text-align:center;color:#b8ae93;font-size:12px;margin-bottom:6px;}
   .datasrc b{color:#fff;}
@@ -70,6 +75,43 @@
   .mtime .mno{opacity:.7; font-weight:800; color:var(--gold);}
   .mtime.live{color:#fff; background:rgba(255,59,92,.85);}
   .mtime.done{color:#dfffe9; background:rgba(0,211,100,.28);}
+  .mtime .flashbtn{display:inline-block; margin-left:6px; cursor:pointer; font-weight:800; color:#1a1300;
+    background:var(--gold); border-radius:6px; padding:1px 6px; font-size:10px; letter-spacing:.3px;}
+  .mtime .flashbtn:hover{filter:brightness(1.08);}
+  /* 快報：對戰顯示（彈窗與時間軸共用） */
+  .fx-match{display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin:2px 0 6px;}
+  .fx-team{display:inline-flex; align-items:center; gap:6px; font-weight:800; font-size:15px; color:#0a1f44;}
+  .fx-team.w{color:#00713a;}
+  img.fx-f{height:1.15em;}
+  .fx-vs{font-size:12px; font-weight:800; color:#8a94ab;}
+  .fx-score{text-align:center; font-weight:900; font-size:20px; color:#0a1f44; margin:2px 0 8px;}
+  .fx-score .fx-pk{font-size:13px; color:#ff8a00; font-weight:800; margin-left:4px;}
+  .fx-text{font-size:15px; line-height:1.75; color:#22314f;}
+  /* 賽果快報時間軸 */
+  .flash-sec{max-width:960px; margin:6px auto 0; padding:0 14px;}
+  .flash-sec details{background:var(--card); border-radius:12px; box-shadow:var(--shadow); overflow:hidden;}
+  .flash-sec summary{cursor:pointer; list-style:none; padding:12px 16px; font-weight:900; font-size:16px;
+    color:#0a1f44; display:flex; align-items:center; gap:10px;}
+  .flash-sec summary::-webkit-details-marker{display:none;}
+  .flash-sec summary::after{content:"▾"; margin-left:auto; color:#8a94ab; transition:transform .2s;}
+  .flash-sec details[open] summary::after{transform:rotate(180deg);}
+  .ff-badge{background:var(--gold); color:#1a1300; border-radius:999px; padding:1px 9px; font-size:12px; font-weight:900;}
+  .ff-hint{font-size:12px; color:#8a94ab; font-weight:600;}
+  .flash-feed{padding:4px 14px 16px; display:grid; gap:10px;}
+  .ff-card{border:1px solid #eef2f9; border-radius:10px; padding:11px 13px; background:#fafcff;}
+  .ff-top{display:flex; align-items:center; gap:8px; margin-bottom:4px;}
+  .ff-lbl{font-weight:900; font-size:12px; color:#fff; background:var(--accent); border-radius:6px; padding:1px 8px;}
+  .ff-dt{font-size:12px; color:#8a94ab; font-weight:700;}
+  /* 合併彈窗：全場精華置頂卡 + 快報小標 */
+  .news-hl{display:flex; align-items:center; gap:14px; padding:14px 16px; border-radius:10px; text-decoration:none;
+    background:linear-gradient(120deg,#1a1a1a,#3a0000); color:#fff; margin-bottom:6px;}
+  .news-hl:hover{filter:brightness(1.08);}
+  .news-hl .hl-play{flex:none; width:42px; height:42px; border-radius:50%; background:#ff0000; color:#fff; font-size:18px;
+    display:flex; align-items:center; justify-content:center; padding-left:3px;}
+  .news-hl .hl-ptext{display:flex; flex-direction:column; gap:2px; line-height:1.4;}
+  .news-hl .hl-ptext b{font-size:15px; font-weight:900;}
+  .news-hl .hl-ptext small{font-size:12px; color:#e6c7c7;}
+  .news-sub{font-weight:900; font-size:14px; color:#0a1f44; margin:14px 2px 8px;}
   .card{background:var(--card); border-radius:12px; box-shadow:var(--shadow); overflow:hidden; border:2px solid transparent;}
   .card.decided{border-color:var(--accent);}
   .team{
@@ -213,10 +255,21 @@
 </header>
 
 <div class="toolbar">
-  <button class="btn btn-predict" id="predictBtn">📝 立即預測冠軍</button>
-  <button class="btn btn-rank" id="rankBtn">📊 冠軍預測人氣榜</button>
-  <button class="btn btn-star" id="starBtn">⭐ 各隊關鍵球星</button>
-  <button class="btn btn-gift" id="actBtn">🎁 活動辦法／獎品</button>
+  <div class="tbgroup">
+    <span class="tbgroup-lbl">預測活動</span>
+    <div class="tbgroup-row">
+      <button class="btn btn-predict" id="predictBtn">📝 立即預測冠軍</button>
+      <button class="btn btn-rank" id="rankBtn">📊 冠軍預測人氣榜</button>
+      <button class="btn btn-gift" id="actBtn">🎁 活動辦法／獎品</button>
+    </div>
+  </div>
+  <div class="tbgroup">
+    <span class="tbgroup-lbl">賽事資訊</span>
+    <div class="tbgroup-row">
+      <button class="btn btn-star" id="starBtn">⭐ 各隊關鍵球星</button>
+      <button class="btn btn-news" id="newsBtn">📣 賽事快報／精華</button>
+    </div>
+  </div>
 </div>
 <div class="hint">點隊伍名稱／國旗 → 看該隊關鍵球星｜點隊伍上的 👤 → 看冠軍預測名單｜賽果每日自動更新並播放「晉級 ✔／淘汰 OUT」動畫</div>
 <div class="datasrc" id="datasrc"></div>
@@ -270,6 +323,26 @@
   </div>
 </div>
 
+<div class="overlay" id="flashOverlay">
+  <div class="modal">
+    <div class="modal-head" style="background:linear-gradient(120deg,#b8860b,#f5c518); color:#1a1300;">
+      <span class="flag">📣</span><span class="h-name" id="flashTitle">本場快報</span>
+      <span class="x" id="flashClose">×</span>
+    </div>
+    <div id="flashBody" style="padding:16px 20px 22px;"></div>
+  </div>
+</div>
+
+<div class="overlay" id="newsOverlay">
+  <div class="modal wide">
+    <div class="modal-head" style="background:linear-gradient(120deg,#b8860b,#f5c518); color:#1a1300;">
+      <span class="flag">📣</span><span class="h-name">賽事快報</span>
+      <span class="x" id="newsClose">×</span>
+    </div>
+    <div id="newsBody" style="padding:12px 16px 20px;"></div>
+  </div>
+</div>
+
 <footer>
   <div id="genstamp"></div>
   <div>賽制依 FIFA 官方：2026 世界盃 48 隊，淘汰賽自 32 強開始。本頁以 32 支真實參賽隊組成對戰圖（冠軍置中、兩側為 32 強），冠軍預測名單維持 16 國；時間為 UTC+8。</div>
@@ -287,12 +360,14 @@ const CONFIG = {
   DEMO_MODE: false,   // FIFA 官方結構為占位賽程，預設不跑範例賽果
   // ★ Google Apps Script Web App 網址（/exec）。填入後，隊伍／預測／賽果全部改由 Google Sheet 讀取。
   //   留空則使用本檔內建範例資料。
-  API_URL: "https://script.google.com/macros/s/AKfycbzRb_RkzVo837ltwmCsMdZZRXkcI4-5-s_M5hVQdeZAjIpyumlY8dpeMyS9a4vspqAV/exec",
+  API_URL: "https://script.google.com/macros/s/AKfycbzf1N2ABLrqck7WL6cDGqt2SnTxxvsBF9IJN9O0BMjpCQeybDCm0KktXCD4jdwlwBsz/exec",
   // （備援）舊版 Google Sheet 冠軍預測名單 gviz；僅在 API_URL 留空時使用
   SHEET_ID: "",
   SHEET_NAME: "工作表1",
   // 預測表單連結（Google 表單）；可由 Google Sheet 的 meta.form_url 覆寫
   FORM_URL: "https://forms.gle/TVDKMVTvtuWJ62Hn8",
+  // 全場精華 YouTube 播放清單 ID（愛爾達 ELTA Sports）；留空則不顯示精華區塊
+  HIGHLIGHT_PLAYLIST: "PLDB8ct-UxVontzYEs1hCQZ0MZu75Y3Isq",
   // 活動辦法與獎品（可自由修改）
   ACTIVITY: {
     period: "2026/7/1 – 7/24",
@@ -338,6 +413,15 @@ const SCORES_DEMO = {
   "r4m0":"2-1"
 };
 let SCORES={};
+
+/* 賽果快報（matchId: 一段文字，≤100 字；排程每日隨賽果一併寫入 FLASH_LIVE）
+   撰寫原則：不重述比分（賽程圖已顯示），改補過程轉折、關鍵英雄、冷門/紀錄脈絡、下一輪看點 */
+const FLASH_LIVE = {};
+const FLASH_DEMO = {
+  // 黃金範例（真實賽果：巴西 2-1 日本，2026/6/29）—— 台灣用語、寫出球星名、不複述比分、輕鬆但不揶揄、全形標點、≤100 字
+  "r0m4":"日本先馳得點！佐野海舟抓住巴西後防失誤攻進個人國家隊首球 ⚽。但巴西下半場火力全開，卡塞米羅頭槌扳平，馬丁內利更在傷停時間轟進絕殺 🔥。維尼修斯一記勁射被門將鈴木彩艷撲出中柱，可惜！"
+};
+let FLASH={};
 
 /* FIFA 世界盃冠軍獎盃（大力神盃）SVG 圖示 */
 const TROPHY_SVG=`<svg viewBox="0 0 64 116" xmlns="http://www.w3.org/2000/svg" aria-label="FIFA 世界盃大力神盃">
@@ -625,6 +709,8 @@ function matchEl(id){
   const pre=stt==="done"?"✅ ":stt==="live"?"🔴 ":"";
   const noTag=(info&&info.no)?`<span class="mno">M${info.no}</span> `:"";
   t.innerHTML=noTag+pre+(info?fmtDT(info.dt):(ROUND_WIN[r]||""))+pkTag+(info&&info.venue?`<span class="venue"> · ${info.venue}</span>`:"");
+  if(FLASH[id]){ const fb=document.createElement("span"); fb.className="flashbtn"; fb.textContent="📣 快報";
+    fb.title="看本場快報"; fb.onclick=e=>{e.stopPropagation(); openFlash(id);}; t.appendChild(fb); }
   wrap.appendChild(t);
   const card=document.createElement("div"); card.className="card";
   const st=state[id]; if(st.winner) card.classList.add("decided");
@@ -827,6 +913,67 @@ document.getElementById("starBtn").onclick=()=>{
 document.getElementById("pClose").onclick=()=>playerOverlay.classList.remove("show");
 playerOverlay.onclick=e=>{if(e.target===playerOverlay)playerOverlay.classList.remove("show");};
 
+/* 賽果快報：彈窗 + 時間軸 */
+function matchLabel(id){
+  const r=+id[1], info=MATCH_INFO[id];
+  return (info&&info.no?`M${info.no}｜`:"")+(ROUND_LABELS[r]||"");
+}
+function scoreLine(id){
+  const sc=SCORES[id]?String(SCORES[id]).trim():"";
+  if(!/^\d{1,2}-\d{1,2}(\|\d{1,2}-\d{1,2})?$/.test(sc)) return "";
+  const p=sc.split("|");
+  return `<div class="fx-score">${p[0]}${p[1]?` <span class="fx-pk">PK ${p[1]}</span>`:""}</div>`;
+}
+function fxTeam(id,code){
+  const st=state[id];
+  if(!code||!TEAMS[code]) return `<span class="fx-team"><span class="fx-n">待定</span></span>`;
+  const win=st&&st.winner===code;
+  return `<span class="fx-team${win?' w':''}">${flagImg(TEAMS[code].f,"fx-f")}<span class="fx-n">${TEAMS[code].n}</span>${win?' ✔':''}</span>`;
+}
+const flashOverlay=document.getElementById("flashOverlay");
+function openFlash(id){
+  const st=state[id]; if(!st||!FLASH[id]) return;
+  document.getElementById("flashTitle").textContent="📣 "+matchLabel(id)+" 快報";
+  document.getElementById("flashBody").innerHTML=
+    `<div class="fx-match">${fxTeam(id,st.teams[0])}<span class="fx-vs">VS</span>${fxTeam(id,st.teams[1])}</div>`+
+    scoreLine(id)+`<div class="fx-text">${FLASH[id]}</div>`;
+  flashOverlay.classList.add("show");
+}
+document.getElementById("flashClose").onclick=()=>flashOverlay.classList.remove("show");
+flashOverlay.onclick=e=>{if(e.target===flashOverlay)flashOverlay.classList.remove("show");};
+function flashCardHtml(id){
+  const st=state[id];
+  return `<div class="ff-card"><div class="ff-top"><span class="ff-lbl">${matchLabel(id)}</span>`+
+    `<span class="ff-dt">${MATCH_INFO[id]?fmtDT(MATCH_INFO[id].dt):""}</span></div>`+
+    `<div class="fx-match">${fxTeam(id,st.teams[0])}<span class="fx-vs">VS</span>${fxTeam(id,st.teams[1])}</div>`+
+    scoreLine(id)+`<div class="fx-text">${FLASH[id]}</div></div>`;
+}
+/* 合併彈窗：全場精華置頂（外開 YouTube 清單）＋ 賽事快報（新→舊） */
+const newsOverlay=document.getElementById("newsOverlay");
+function renderNews(){
+  const body=document.getElementById("newsBody"); if(!body) return;
+  let html="";
+  const pid=(CONFIG.HIGHLIGHT_PLAYLIST||"").trim();
+  if(pid){
+    const url="https://www.youtube.com/playlist?list="+encodeURIComponent(pid);
+    html+=`<a class="news-hl" href="${url}" target="_blank" rel="noopener"><span class="hl-play">▶</span>`+
+      `<span class="hl-ptext"><b>🎬 全場精華</b><small>愛爾達 ELTA Sports · 點擊外開 YouTube 完整清單</small></span></a>`;
+  }
+  const ids=Object.keys(FLASH).filter(id=>FLASH[id]&&state[id]);
+  ids.sort((a,b)=>{
+    const da=MATCH_INFO[a]&&MATCH_INFO[a].dt?Date.parse(MATCH_INFO[a].dt):0;
+    const db=MATCH_INFO[b]&&MATCH_INFO[b].dt?Date.parse(MATCH_INFO[b].dt):0;
+    return db-da;   // 最新到最舊
+  });
+  html+=`<div class="news-sub">📣 賽事快報</div>`;
+  html+= ids.length ? `<div class="flash-feed">${ids.map(flashCardHtml).join("")}</div>`
+                    : `<div class="empty-note">賽事快報尚未產生，比賽結束後每日更新。</div>`;
+  body.innerHTML=html;
+}
+document.getElementById("newsBtn").onclick=()=>{ renderNews(); newsOverlay.classList.add("show"); document.querySelector("#newsOverlay .modal").scrollTop=0; };
+document.getElementById("newsClose").onclick=()=>newsOverlay.classList.remove("show");
+newsOverlay.onclick=e=>{if(e.target===newsOverlay)newsOverlay.classList.remove("show");};
+
 /* 立即預測 CTA */
 document.getElementById("predictBtn").onclick=()=>{
   if(CONFIG.FORM_URL) window.open(CONFIG.FORM_URL,"_blank","noopener");
@@ -997,10 +1144,12 @@ async function loadAll(){
     if(j.results){
       Object.keys(RESULTS_LIVE).forEach(k=>delete RESULTS_LIVE[k]);
       Object.keys(SCORES_LIVE).forEach(k=>delete SCORES_LIVE[k]);
+      Object.keys(FLASH_LIVE).forEach(k=>delete FLASH_LIVE[k]);
       Object.entries(j.results).forEach(([id,r])=>{
         if(!r) return;
         if(r.winner) RESULTS_LIVE[id]=String(r.winner).trim();
         if(r.score) SCORES_LIVE[id]=r.pk?`${String(r.score).trim()}|${String(r.pk).trim()}`:String(r.score).trim();
+        if(r.flash) FLASH_LIVE[id]=String(r.flash).trim();
       });
     }
     // 4) meta
@@ -1028,8 +1177,8 @@ async function loadLive(){
   }catch(e){ /* fallback to built-in constants */ }
 }
 function loadResults(){
-  if(CONFIG.DEMO_MODE){ RESULTS={...RESULTS_DEMO}; SCORES={...SCORES_DEMO}; return; }
-  RESULTS={...RESULTS_LIVE}; SCORES={...SCORES_LIVE};
+  if(CONFIG.DEMO_MODE){ RESULTS={...RESULTS_DEMO}; SCORES={...SCORES_DEMO}; FLASH={...FLASH_DEMO}; return; }
+  RESULTS={...RESULTS_LIVE}; SCORES={...SCORES_LIVE}; FLASH={...FLASH_LIVE};
 }
 function setDataSrc(t){
   const upd = LAST_UPDATED ? `　|　賽果更新：<b>${LAST_UPDATED}</b>` : "";
