@@ -14,6 +14,15 @@
     --shadow:0 8px 22px rgba(0,0,0,.22);
   }
   *{box-sizing:border-box;margin:0;padding:0;}
+  /* 載入畫面 */
+  #loadingView{position:fixed; inset:0; z-index:9999; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:10px; background:linear-gradient(160deg,#0a0a0c,#201d15);
+    transition:opacity .4s ease; }
+  #loadingView.hide{opacity:0; pointer-events:none;}
+  #loadingView .ld-ball{font-size:46px; animation:ldbounce 1s infinite ease-in-out;}
+  #loadingView .ld-txt{color:#f5c518; font-weight:900; font-size:18px; letter-spacing:1px;}
+  #loadingView .ld-sub{color:#c9c2ad; font-size:13px;}
+  @keyframes ldbounce{0%,100%{transform:translateY(0) scale(1);}50%{transform:translateY(-14px) scale(1.08);}}
   body{
     font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
     color:var(--ink);
@@ -244,6 +253,11 @@
 </style>
 </head>
 <body>
+<div id="loadingView">
+  <div class="ld-ball">⚽</div>
+  <div class="ld-txt">載入賽況中…</div>
+  <div class="ld-sub">正在讀取最新賽果與快報</div>
+</div>
 <header>
   <div class="title"><span class="ball">⚽</span> 91APP 世界盃開踢</div>
   <div class="subtitle">2026 FIFA World Cup · 美 / 墨 / 加　|　by <b>91APP</b></div>
@@ -360,7 +374,7 @@ const CONFIG = {
   DEMO_MODE: false,   // FIFA 官方結構為占位賽程，預設不跑範例賽果
   // ★ Google Apps Script Web App 網址（/exec）。填入後，隊伍／預測／賽果全部改由 Google Sheet 讀取。
   //   留空則使用本檔內建範例資料。
-  API_URL: "https://script.google.com/macros/s/AKfycbzf1N2ABLrqck7WL6cDGqt2SnTxxvsBF9IJN9O0BMjpCQeybDCm0KktXCD4jdwlwBsz/exec",
+  API_URL: "https://script.google.com/macros/s/AKfycbwZRLBCwere7dY4Hckh4WYst8jkbfxwJon5v9lEtVG-IS0yUB8Mypt5snppxJUt7Uh9/exec",
   // （備援）舊版 Google Sheet 冠軍預測名單 gviz；僅在 API_URL 留空時使用
   SHEET_ID: "",
   SHEET_NAME: "工作表1",
@@ -1071,8 +1085,8 @@ function parseCSV(text){
 }
 function loadPredictions(){
   if(CONFIG.DEMO_MODE){ PRED=SAMPLE_PRED; setDataSrc("冠軍預測名單：內建範例（展示模式）"); return; }
-  if(API_PRED){ PRED=API_PRED; setDataSrc("冠軍預測名單：Google Sheet（Apps Script）即時匯入 ✅"); return; }
-  PRED={}; setDataSrc("冠軍預測名單：尚無資料（請於 Google Sheet 設定）");
+  if(API_PRED){ PRED=API_PRED; setDataSrc("冠軍預測名單：即時更新 ✅"); return; }
+  PRED={}; setDataSrc("冠軍預測名單：目前尚無資料");
 }
 /* ★ 從 Google Apps Script Web App 載入：teams / predictions / results / meta。
    失敗或未設定 API_URL 時靜默退回內建範例資料。 */
@@ -1092,12 +1106,11 @@ function jsonpFetch(url){
 async function loadAll(){
   if(!CONFIG.API_URL) return false;
   let j=null;
+  const u=CONFIG.API_URL+(CONFIG.API_URL.includes("?")?"&":"?")+"t="+Date.now();
   try{
-    const u=CONFIG.API_URL+(CONFIG.API_URL.includes("?")?"&":"?")+"t="+Date.now();
-    j=await (await fetch(u)).json();
-  }catch(e){
-    try{ j=await jsonpFetch(CONFIG.API_URL); }catch(e2){ return false; }
-  }
+    // fetch 與 JSONP 同時發動，誰先成功用誰；避免「等 fetch 被 CORS 擋掉才換 JSONP」的雙倍等待
+    j=await Promise.any([ fetch(u).then(r=>r.json()), jsonpFetch(CONFIG.API_URL) ]);
+  }catch(e){ return false; }
   if(!j) return false;
   try{
     // 1) 隊伍：把 Sheet teams 依 match/pos 覆蓋到固定 FIFA 結構；未填的格子保留組別代號占位
@@ -1198,16 +1211,20 @@ function setNotice(){
 }
 
 /* init */
+function hideLoading(){ const l=document.getElementById("loadingView"); if(l){ l.classList.add("hide"); setTimeout(()=>l.remove(),450); } }
 (async function init(){
-  await loadAll();          // Google Sheet（Apps Script）；未設定 API_URL 則略過
-  await loadLive();         // 備援：results.json
-  // 16 強名單：僅展示模式用內建 16 國；否則嚴格依 Sheet（predictable），沒有則為空
-  PREDICT_TEAMS = CONFIG.DEMO_MODE ? BUILTIN_PREDICT.slice() : (SHEET_PREDICT || []);
-  // 球星：展示模式用內建；否則依 Sheet players（沒有則為空）
-  PLAYERS = CONFIG.DEMO_MODE ? BUILTIN_PLAYERS : (SHEET_PLAYERS || {});
-  setNotice(); tick();
-  await loadPredictions(); loadResults();
-  applyResults(); render();
+  try{
+    await loadAll();          // Google Sheet（Apps Script）；未設定 API_URL 則略過
+    // 16 強名單：僅展示模式用內建 16 國；否則嚴格依 Sheet（predictable），沒有則為空
+    PREDICT_TEAMS = CONFIG.DEMO_MODE ? BUILTIN_PREDICT.slice() : (SHEET_PREDICT || []);
+    // 球星：展示模式用內建；否則依 Sheet players（沒有則為空）
+    PLAYERS = CONFIG.DEMO_MODE ? BUILTIN_PLAYERS : (SHEET_PLAYERS || {});
+    setNotice(); tick();
+    loadPredictions(); loadResults();
+    applyResults(); render();
+  }finally{
+    hideLoading();            // 無論成功或失敗都收起載入畫面
+  }
   await sleep(350); revealSequence();
 })();
 </script>
