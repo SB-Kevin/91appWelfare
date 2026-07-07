@@ -192,6 +192,9 @@
   .rankrow .bar{flex:1; background:#eef3fc; border-radius:6px; overflow:hidden; height:16px;}
   .rankrow .bar i{display:block; height:100%; background:linear-gradient(90deg,#4b6cb7,#00d364);}
   .rankrow .rc{width:30px; text-align:right; font-weight:800; font-size:13px;}
+  .rankrow.out{opacity:.5; filter:grayscale(1);}
+  .rankrow.out .rname{text-decoration:line-through;}
+  .rankrow .rout{flex:none; background:var(--red); color:#fff; font-size:10px; font-weight:900; padding:1px 5px; border-radius:4px;}
   /* player popup */
   .modal.wide{width:min(560px,95vw);}
   .team-tabs{display:flex; flex-wrap:wrap; gap:6px; padding:12px 16px 4px; position:sticky; top:62px; background:#fff; z-index:2; border-bottom:1px solid #eef2f9;}
@@ -844,6 +847,14 @@ overlay.onclick=e=>{if(e.target===overlay)overlay.classList.remove("show");};
 
 /* 人氣榜 */
 const rankOverlay=document.getElementById("rankOverlay");
+// 該隊是否已被淘汰：曾在某場已分勝負的比賽中不是勝隊
+function isEliminated(code){
+  for(const id in state){
+    const st=state[id];
+    if(st && st.winner && st.teams && st.teams.indexOf(code)>=0 && st.winner!==code) return true;
+  }
+  return false;
+}
 document.getElementById("rankBtn").onclick=()=>{
   // 直接統計實際預測資料（不需預設名單）
   const arr=Object.keys(PRED).map(c=>[c,(PRED[c]||[]).length]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]);
@@ -855,9 +866,10 @@ document.getElementById("rankBtn").onclick=()=>{
   const max=Math.max(1,arr[0][1]);
   arr.forEach(([code,n],i)=>{
     const nm=TEAMS[code]?TEAMS[code].n:code, fl=TEAMS[code]?TEAMS[code].f:"⚽";
-    const row=document.createElement("div"); row.className="rankrow";
+    const out=isEliminated(code);
+    const row=document.createElement("div"); row.className="rankrow"+(out?" out":"");
     row.innerHTML=`<span class="rk">${i+1}</span>${flagImg(fl,"rflag")}
-      <span class="rname">${nm}</span>
+      <span class="rname">${nm}</span>${out?'<span class="rout">OUT</span>':''}
       <span class="bar"><i style="width:${n/max*100}%"></i></span><span class="rc">${n}</span>`;
     row.onclick=()=>{rankOverlay.classList.remove("show"); openPredictors(code);};
     body.appendChild(row);
