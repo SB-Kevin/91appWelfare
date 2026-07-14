@@ -23,6 +23,30 @@
   #loadingView .ld-txt{color:#f5c518; font-weight:900; font-size:18px; letter-spacing:1px;}
   #loadingView .ld-sub{color:#c9c2ad; font-size:13px;}
   @keyframes ldbounce{0%,100%{transform:translateY(0) scale(1);}50%{transform:translateY(-14px) scale(1.08);}}
+  /* 冠軍戰／冠軍 慶祝動畫 */
+  #celebOverlay{position:fixed; inset:0; z-index:10000; display:none; align-items:center; justify-content:center;
+    background:radial-gradient(circle at 50% 38%,rgba(28,24,12,.92),rgba(5,5,8,.97)); overflow:hidden; opacity:0; transition:opacity .5s;}
+  #celebOverlay.show{opacity:1;}
+  #celebOverlay .conf-layer{position:absolute; inset:0; overflow:hidden; pointer-events:none;}
+  #celebOverlay .confetti{position:absolute; top:-24px; width:9px; height:14px; border-radius:1px; opacity:.95;
+    animation:confFall linear forwards;}
+  @keyframes confFall{to{transform:translateY(112vh) rotate(760deg);}}
+  .celeb-card{position:relative; z-index:2; text-align:center; color:#fff; padding:24px 26px; max-width:540px; width:92%;}
+  .celeb-cap{font-size:15px; font-weight:900; letter-spacing:4px; color:var(--gold); margin-bottom:6px;}
+  #celebOverlay img.flagimg{height:56px; border-radius:5px; box-shadow:0 6px 18px rgba(0,0,0,.55);}
+  .celeb-champ-emoji{font-size:72px; line-height:1; animation:celebPop .8s ease;}
+  .celeb-champ{font-size:34px; font-weight:900; margin:10px 0 4px; animation:celebGlow 2s infinite;}
+  .celeb-vs{display:flex; align-items:center; justify-content:center; gap:20px; margin:18px 0 6px; flex-wrap:wrap;}
+  .celeb-team{display:flex; flex-direction:column; align-items:center; gap:10px; font-size:22px; font-weight:900; animation:celebPop .7s ease;}
+  .celeb-vsx{font-size:26px; font-weight:900; color:var(--gold);}
+  .celeb-sub{font-size:15px; color:#f0ead2; margin-top:12px; line-height:1.75;}
+  .celeb-names{margin:8px auto 0; max-width:460px; max-height:132px; overflow:auto; font-size:14px; color:#fff;
+    line-height:1.9; background:rgba(255,255,255,.08); border-radius:10px; padding:10px 14px;}
+  .celeb-close{margin-top:18px; display:inline-block; cursor:pointer; background:var(--gold); color:#2a1a00;
+    font-weight:900; font-size:14px; padding:9px 22px; border-radius:999px;}
+  .celeb-close:hover{filter:brightness(1.08);}
+  @keyframes celebPop{0%{transform:scale(0) rotate(-25deg);}70%{transform:scale(1.18) rotate(8deg);}100%{transform:scale(1) rotate(0);}}
+  @keyframes celebGlow{0%,100%{text-shadow:0 0 12px rgba(245,197,24,.5);}50%{text-shadow:0 0 28px rgba(245,197,24,.95);}}
   body{
     font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
     color:var(--ink);
@@ -197,7 +221,10 @@
   .rankrow .rout{flex:none; background:var(--red); color:#fff; font-size:10px; font-weight:900; padding:1px 5px; border-radius:4px;}
   /* player popup */
   .modal.wide{width:min(560px,95vw);}
-  .team-tabs{display:flex; flex-wrap:wrap; gap:6px; padding:12px 16px 4px; position:sticky; top:62px; background:#fff; z-index:2; border-bottom:1px solid #eef2f9;}
+  .team-tabs{display:flex; flex-wrap:nowrap; overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; gap:6px; padding:10px 16px; position:sticky; top:62px; background:#fff; z-index:2; border-bottom:1px solid #eef2f9; scrollbar-width:thin;}
+  .team-tabs::-webkit-scrollbar{height:5px;}
+  .team-tabs::-webkit-scrollbar-thumb{background:#cfd8e8; border-radius:5px;}
+  .team-tab{flex:0 0 auto;}
   .team-tab{display:inline-flex; align-items:center; gap:5px; padding:5px 10px; border-radius:999px; background:#eef3fc; color:var(--ink); font-size:13px; font-weight:700; cursor:pointer; border:2px solid transparent;}
   .team-tab:hover{background:#e2ebfb;}
   .team-tab.active{background:linear-gradient(120deg,#e4002b,#a1001f); color:#fff;}
@@ -250,7 +277,9 @@
     .team .pred{font-size:10.5px; padding:2px 6px;}
     .team .goal{font-size:14px;}
     .champ-box{min-width:150px; padding:14px 12px;}
-    .team-tabs{top:58px;}
+    /* 手機：沿用單行橫向捲動（基底已設），僅微調定位與大小 */
+    .team-tabs{top:58px; padding:8px 12px;}
+    .team-tab{padding:5px 9px; font-size:12.5px;}
   }
   footer{text-align:center; color:#b8ae93; font-size:12px; margin-top:10px; padding:0 16px; line-height:1.7;}
 </style>
@@ -360,6 +389,8 @@
   </div>
 </div>
 
+<div id="celebOverlay"><div class="conf-layer" id="confLayer"></div><div class="celeb-card" id="celebCard"></div></div>
+
 <footer>
   <div id="genstamp"></div>
   <div>賽制依 FIFA 官方：2026 世界盃 48 隊，淘汰賽自 32 強開始。本頁以 32 支真實參賽隊組成對戰圖（冠軍置中、兩側為 32 強），冠軍預測名單維持 16 國；時間為 UTC+8。</div>
@@ -402,9 +433,12 @@ const CONFIG = {
   }
 };
 
-// 每日排程自動寫入的真實賽果（matchId: 勝隊代碼）。賽前為空。
+// 已確定賽果（本地內建，API 回來會覆蓋更新）。
 const RESULTS_LIVE = {
-  // "r0m0":"ARG",
+  "r0m0":"CAN","r0m1":"MAR","r0m2":"PAR","r0m3":"FRA","r0m4":"USA","r0m5":"BEL","r0m6":"POR","r0m7":"ESP",
+  "r0m8":"BRA","r0m9":"NOR","r0m10":"MEX","r0m11":"ENG","r0m12":"SUI","r0m13":"COL","r0m14":"ARG","r0m15":"EGY",
+  "r1m0":"MAR","r1m1":"FRA","r1m2":"BEL","r1m3":"ESP","r1m4":"NOR","r1m5":"ENG","r1m6":"SUI","r1m7":"ARG",
+  "r2m0":"FRA","r2m1":"ESP","r2m2":"ENG","r2m3":"ARG"
 };
 let LAST_UPDATED = "";  // 由排程填入，例如 "2026-07-05 07:00 (UTC+8)"
 
@@ -420,7 +454,12 @@ const RESULTS_DEMO = {
 
 /* 比分（matchId: "上方隊-下方隊" 進球數；排程每日更新時一併填入 SCORES_LIVE）
    一般比分用 "上-下"；PK 決勝用 "上-下|PK上-PK下"，例 "1-1|4-2" */
-const SCORES_LIVE = {};
+const SCORES_LIVE = {
+  "r0m0":"0-1","r0m1":"1-1|2-3","r0m2":"1-1|3-4","r0m3":"3-0","r0m4":"2-0","r0m5":"3-2","r0m6":"2-1","r0m7":"3-0",
+  "r0m8":"2-1","r0m9":"1-2","r0m10":"2-0","r0m11":"2-1","r0m12":"2-0","r0m13":"1-0","r0m14":"3-2","r0m15":"1-1|2-4",
+  "r1m0":"0-3","r1m1":"0-1","r1m2":"1-4","r1m3":"0-1","r1m4":"1-2","r1m5":"2-3","r1m6":"0-0|4-3","r1m7":"3-2",
+  "r2m0":"0-2","r2m1":"1-2","r2m2":"1-2","r2m3":"1-3"
+};
 const SCORES_DEMO = {
   "r0m0":"2-0","r0m1":"3-1","r0m2":"2-1","r0m3":"1-0","r0m4":"2-1","r0m5":"3-0","r0m6":"2-1","r0m7":"2-0",
   "r0m8":"2-1","r0m9":"1-0","r0m10":"2-0","r0m11":"2-1","r0m12":"1-0","r0m13":"2-1","r0m14":"2-1","r0m15":"3-1",
@@ -490,19 +529,21 @@ const TROPHY_SVG=`<svg viewBox="0 0 64 116" xmlns="http://www.w3.org/2000/svg" a
    隊伍（16 支真實 2026 世界盃參賽隊）
    ================================================================= */
 let TEAMS = {
-  ARG:{n:"阿根廷",f:"🇦🇷"}, JPN:{n:"日本",f:"🇯🇵"},
-  FRA:{n:"法國",f:"🇫🇷"}, URU:{n:"烏拉圭",f:"🇺🇾"},
-  ESP:{n:"西班牙",f:"🇪🇸"}, MEX:{n:"墨西哥",f:"🇲🇽"},
-  ENG:{n:"英格蘭",f:"🏴󠁧󠁢󠁥󠁮󠁧󠁿"}, COL:{n:"哥倫比亞",f:"🇨🇴"},
-  BRA:{n:"巴西",f:"🇧🇷"}, MAR:{n:"摩洛哥",f:"🇲🇦"},
-  POR:{n:"葡萄牙",f:"🇵🇹"}, USA:{n:"美國",f:"🇺🇸"},
-  GER:{n:"德國",f:"🇩🇪"}, CRO:{n:"克羅埃西亞",f:"🇭🇷"},
-  NED:{n:"荷蘭",f:"🇳🇱"}, BEL:{n:"比利時",f:"🇧🇪"},
-  /* 以下為填滿 32 強的其餘真實參賽隊（不列入冠軍預測名單） */
-  NOR:{n:"挪威",f:"🇳🇴"}, SUI:{n:"瑞士",f:"🇨🇭"}, AUT:{n:"奧地利",f:"🇦🇹"}, TUR:{n:"土耳其",f:"🇹🇷"},
-  SEN:{n:"塞內加爾",f:"🇸🇳"}, ECU:{n:"厄瓜多",f:"🇪🇨"}, KOR:{n:"南韓",f:"🇰🇷"}, AUS:{n:"澳洲",f:"🇦🇺"},
-  EGY:{n:"埃及",f:"🇪🇬"}, CAN:{n:"加拿大",f:"🇨🇦"}, CIV:{n:"象牙海岸",f:"🇨🇮"}, GHA:{n:"迦納",f:"🇬🇭"},
-  PAR:{n:"巴拉圭",f:"🇵🇾"}, IRN:{n:"伊朗",f:"🇮🇷"}, KSA:{n:"沙烏地阿拉伯",f:"🇸🇦"}, SWE:{n:"瑞典",f:"🇸🇪"}
+  MEX:{n:"墨西哥",f:"🇲🇽"}, USA:{n:"美國",f:"🇺🇸"}, GER:{n:"德國",f:"🇩🇪"}, RSA:{n:"南非",f:"🇿🇦"},
+  SUI:{n:"瑞士",f:"🇨🇭"}, CAN:{n:"加拿大",f:"🇨🇦"}, BRA:{n:"巴西",f:"🇧🇷"}, MAR:{n:"摩洛哥",f:"🇲🇦"},
+  ARG:{n:"阿根廷",f:"🇦🇷"}, NED:{n:"荷蘭",f:"🇳🇱"}, BEL:{n:"比利時",f:"🇧🇪"}, ESP:{n:"西班牙",f:"🇪🇸"},
+  FRA:{n:"法國",f:"🇫🇷"}, COL:{n:"哥倫比亞",f:"🇨🇴"}, AUS:{n:"澳洲",f:"🇦🇺"}, CIV:{n:"象牙海岸",f:"🇨🇮"},
+  JPN:{n:"日本",f:"🇯🇵"}, EGY:{n:"埃及",f:"🇪🇬"}, CPV:{n:"維德角",f:"🇨🇻"}, NOR:{n:"挪威",f:"🇳🇴"},
+  POR:{n:"葡萄牙",f:"🇵🇹"}, ENG:{n:"英格蘭",f:"🏴󠁧󠁢󠁥󠁮󠁧󠁿"}, AUT:{n:"奧地利",f:"🇦🇹"}, CRO:{n:"克羅埃西亞",f:"🇭🇷"},
+  PAR:{n:"巴拉圭",f:"🇵🇾"}, SWE:{n:"瑞典",f:"🇸🇪"}, ECU:{n:"厄瓜多",f:"🇪🇨"}, COD:{n:"剛果民主共和國",f:"🇨🇩"},
+  BIH:{n:"波士尼亞與赫塞哥維納",f:"🇧🇦"}, SEN:{n:"塞內加爾",f:"🇸🇳"}, ALG:{n:"阿爾及利亞",f:"🇩🇿"}, GHA:{n:"迦納",f:"🇬🇭"}
+};
+/* 32 強對戰籤表（本地內建，供「先畫」用；API 的 teams 會覆蓋。key=r0m{內部索引}_{pos}） */
+const BUILTIN_LINEUP = {
+  "r0m0_0":"RSA","r0m0_1":"CAN","r0m1_0":"NED","r0m1_1":"MAR","r0m2_0":"GER","r0m2_1":"PAR","r0m3_0":"FRA","r0m3_1":"SWE",
+  "r0m4_0":"USA","r0m4_1":"BIH","r0m5_0":"BEL","r0m5_1":"SEN","r0m6_0":"POR","r0m6_1":"CRO","r0m7_0":"ESP","r0m7_1":"AUT",
+  "r0m8_0":"BRA","r0m8_1":"JPN","r0m9_0":"CIV","r0m9_1":"NOR","r0m10_0":"MEX","r0m10_1":"ECU","r0m11_0":"ENG","r0m11_1":"COD",
+  "r0m12_0":"SUI","r0m12_1":"ALG","r0m13_0":"COL","r0m13_1":"GHA","r0m14_0":"ARG","r0m14_1":"CPV","r0m15_0":"AUS","r0m15_1":"EGY"
 };
 /* 內建 16 國（僅展示模式 demo_mode=TRUE 時使用；有球星資料） */
 const BUILTIN_PREDICT=["ARG","JPN","FRA","URU","ESP","MEX","ENG","COL","BRA","MAR","POR","USA","GER","CRO","NED","BEL"];
@@ -647,7 +688,7 @@ const MATCH_INFO={
   "r4m0":{no:104, dt:"2026-07-20T03:00",venue:"紐約／紐澤西"}
 };
 
-let state={}, RESULTS={}, REAL_LINEUP={};  // REAL_LINEUP["r0m#_pos"]=真實隊代碼（由 Sheet teams 覆蓋）
+let state={}, RESULTS={}, REAL_LINEUP={...BUILTIN_LINEUP};  // 內建籤表為底；API 的 Sheet teams 會覆蓋
 function buildState(){
   state={};
   R32_SLOTS.forEach((s,i)=>{
@@ -883,6 +924,7 @@ rankOverlay.onclick=e=>{if(e.target===rankOverlay)rankOverlay.classList.remove("
 const playerOverlay=document.getElementById("playerOverlay");
 function renderTeamTabs(active){
   const tabs=document.getElementById("teamTabs"); tabs.innerHTML="";
+  let activeEl=null;
   Object.keys(PLAYERS).forEach(code=>{
     const b=document.createElement("span");
     b.className="team-tab"+(code===active?" active":"");
@@ -890,7 +932,10 @@ function renderTeamTabs(active){
     b.innerHTML=`${flagImg(T.f,"tf")}${T.n}`;
     b.onclick=()=>showPlayers(code);
     tabs.appendChild(b);
+    if(code===active) activeEl=b;
   });
+  // 單行捲動時，讓選中的國家滑到可見位置
+  if(activeEl) activeEl.scrollIntoView({inline:"center",block:"nearest"});
 }
 function showPlayers(code){
   renderTeamTabs(code);
@@ -913,18 +958,34 @@ function showPlayers(code){
   body.parentElement.scrollTop=0;
   toLoad.forEach(([id,w])=>loadPhoto(id,w));
 }
-/* 用維基百科 API（CORS 允許）即時載入球員自由授權照片，失敗則保留字母頭像 */
+/* 用維基百科 API（CORS 允許）即時載入球員自由授權照片，失敗則保留字母頭像。
+   wiki 欄可填：純條目名（預設英文維基）或完整維基網址（任何語言，含中文）。 */
 const PHOTO_CACHE={};
-function loadPhoto(elId,title){
-  const el=document.getElementById(elId); if(!el||!title) return;
+// 解析 wiki 欄 → {lang, title}
+function wikiTarget(v){
+  v=String(v||"").trim(); if(!v) return null;
+  if(/^https?:\/\//i.test(v)){
+    try{
+      const u=new URL(v);
+      const lang=(u.hostname.split(".")[0]||"en");           // zh / en / es …
+      const seg=decodeURIComponent((u.pathname.split("/").filter(Boolean).pop()||"")).replace(/_/g," ");
+      if(seg) return {lang, title:seg};
+    }catch(e){}
+  }
+  return {lang:"en", title:v};
+}
+function loadPhoto(elId,wiki){
+  const el=document.getElementById(elId); const t=wikiTarget(wiki); if(!el||!t) return;
+  const key=t.lang+"|"+t.title;
   const apply=src=>{ const e=document.getElementById(elId); if(e&&src){ e.classList.add("has-photo"); e.innerHTML=`<img src="${src}" alt="" referrerpolicy="no-referrer">`; } };
-  if(PHOTO_CACHE[title]!==undefined){ apply(PHOTO_CACHE[title]); return; }
-  fetch(`https://en.wikipedia.org/w/api.php?action=query&format=json&prop=pageimages&piprop=thumbnail&pithumbsize=200&titles=${encodeURIComponent(title)}&origin=*`)
+  if(PHOTO_CACHE[key]!==undefined){ apply(PHOTO_CACHE[key]); return; }
+  // redirects=1：自動跟隨重新導向／消歧義轉址，抓到正確條目的主圖
+  fetch(`https://${t.lang}.wikipedia.org/w/api.php?action=query&format=json&prop=pageimages&piprop=thumbnail&pithumbsize=200&redirects=1&titles=${encodeURIComponent(t.title)}&origin=*`)
     .then(r=>r.json()).then(d=>{
       let src=null; const pages=d&&d.query&&d.query.pages;
       if(pages){ const pg=Object.values(pages)[0]; if(pg&&pg.thumbnail&&pg.thumbnail.source) src=pg.thumbnail.source; }
-      PHOTO_CACHE[title]=src; apply(src);
-    }).catch(()=>{ PHOTO_CACHE[title]=null; });
+      PHOTO_CACHE[key]=src; apply(src);
+    }).catch(()=>{ PHOTO_CACHE[key]=null; });
 }
 function openPlayers(code){ showPlayers(code); playerOverlay.classList.add("show"); }
 document.getElementById("starBtn").onclick=()=>{
@@ -1166,7 +1227,8 @@ async function loadAll(){
       API_PRED=map;
     }
     // 3) 賽果 → RESULTS_LIVE / SCORES_LIVE
-    if(j.results){
+    //    原則：API 有賽果就「完全以 API 為準」（清掉本地內建後重填）；API 沒賽果才保留本地內建當備援
+    if(j.results && Object.keys(j.results).length){
       Object.keys(RESULTS_LIVE).forEach(k=>delete RESULTS_LIVE[k]);
       Object.keys(SCORES_LIVE).forEach(k=>delete SCORES_LIVE[k]);
       Object.keys(FLASH_LIVE).forEach(k=>delete FLASH_LIVE[k]);
@@ -1222,22 +1284,83 @@ function setNotice(){
   document.getElementById("genstamp").textContent=`版本生成時間：${stamp}`;
 }
 
+/* 冠軍戰／冠軍 慶祝動畫 ------------------------------------------------ */
+function seenOnce(k){ try{return sessionStorage.getItem(k)==="1";}catch(e){return false;} }
+function markOnce(k){ try{sessionStorage.setItem(k,"1");}catch(e){} }
+function spawnConfetti(n){
+  const layer=document.getElementById("confLayer"); if(!layer) return; layer.innerHTML="";
+  const cols=["#f5c518","#00a14b","#e4002b","#1763c9","#ff8a00","#ffffff","#00d364"];
+  let html="";
+  for(let i=0;i<n;i++){
+    const l=(Math.random()*100).toFixed(2), bg=cols[i%cols.length];
+    const dur=(2.6+Math.random()*2.6).toFixed(2), del=(Math.random()*1.4).toFixed(2);
+    const rot=(Math.random()*360).toFixed(0), w=(6+Math.random()*6).toFixed(0);
+    html+=`<span class="confetti" style="left:${l}vw;background:${bg};width:${w}px;animation-duration:${dur}s;animation-delay:${del}s;transform:rotate(${rot}deg)"></span>`;
+  }
+  layer.innerHTML=html;
+}
+function closeCeleb(){ const o=document.getElementById("celebOverlay"); if(!o) return;
+  o.classList.remove("show"); setTimeout(()=>{o.style.display="none"; const c=document.getElementById("confLayer"); if(c)c.innerHTML="";},500); }
+function showCeleb(html,confN){
+  const o=document.getElementById("celebOverlay"); if(!o) return;
+  document.getElementById("celebCard").innerHTML=html+`<div class="celeb-close" onclick="closeCeleb()">進入賽況 →</div>`;
+  o.style.display="flex"; requestAnimationFrame(()=>o.classList.add("show"));
+  spawnConfetti(confN||140);
+}
+function celebIfNeeded(force){
+  const fin=state["r4m0"];
+  const gate=(key)=>{ if(force) return true; if(seenOnce(key)) return false; markOnce(key); return true; };
+  // 1) 冠軍已產生：祝賀冠軍 + 猜中的同事
+  if(state.champ && TEAMS[state.champ]){
+    const c=state.champ, T=TEAMS[c], key="celeb_champ_"+c;
+    if(!gate(key)) return;
+    const w=(PRED[c]||[]);
+    const namesBlock = w.length
+      ? `<div class="celeb-sub">🎉 恭喜猜中冠軍的 <b>${w.length}</b> 位同事，運動折抵券平分入袋！</div>`+
+        `<div class="celeb-names">${w.slice(0,40).join("、")}${w.length>40?` … 等 ${w.length} 人`:""}</div>`
+      : `<div class="celeb-sub">可惜這次沒有人猜中冠軍，下屆再戰！</div>`;
+    showCeleb(`<div class="celeb-cap">2026 世界盃 冠軍</div><div class="celeb-champ-emoji">🏆</div>`+
+      `${flagImg(T.f,"")}<div class="celeb-champ">${T.n}</div>${namesBlock}`, 220);
+    return;
+  }
+  const vsRow=(a,b)=>`<div class="celeb-vs"><span class="celeb-team">${flagImg(TEAMS[a].f,"")}${TEAMS[a].n}</span>`+
+    `<span class="celeb-vsx">VS</span><span class="celeb-team">${flagImg(TEAMS[b].f,"")}${TEAMS[b].n}</span></div>`;
+  // 2) 冠軍戰對戰隊伍已確定（尚未分勝負）
+  if(fin && fin.teams[0] && fin.teams[1] && !fin.winner && TEAMS[fin.teams[0]] && TEAMS[fin.teams[1]]){
+    const a=fin.teams[0], b=fin.teams[1], key="celeb_final_"+a+"_"+b;
+    if(!gate(key)) return;
+    showCeleb(`<div class="celeb-cap">冠軍戰 · THE FINAL</div>${vsRow(a,b)}`+
+      `<div class="celeb-sub">巔峰對決即將登場，鎖定賽況！</div>`, 150);
+    return;
+  }
+  // 3) 準決賽（四強）賽前動畫：對戰確定、尚未開打的準決賽場次
+  const sfs=["r3m0","r3m1"].map(id=>state[id]).filter(st=>st&&st.teams[0]&&st.teams[1]&&!st.winner&&TEAMS[st.teams[0]]&&TEAMS[st.teams[1]]);
+  if(sfs.length){
+    const key="celeb_sf_"+sfs.map(st=>st.teams.join("")).join("_");
+    if(!gate(key)) return;
+    showCeleb(`<div class="celeb-cap">準決賽 · SEMI-FINAL</div>${sfs.map(st=>vsRow(st.teams[0],st.teams[1])).join("")}`+
+      `<div class="celeb-sub">四強對決，誰能搶下決賽門票？</div>`, 130);
+  }
+}
+
 /* init */
 function hideLoading(){ const l=document.getElementById("loadingView"); if(l){ l.classList.add("hide"); setTimeout(()=>l.remove(),450); } }
 (async function init(){
+  // ① 本地先畫（秒開）：用內建 TEAMS + 籤表 + 已確定賽果，立刻把賽程圖畫出來
+  setNotice(); tick();
+  loadResults(); applyResults(); render();
+  hideLoading();
+  // ② 背景打 API：更新真實隊伍/位置、預測人數、快報、最新賽果，完成後再畫一次
   try{
-    await loadAll();          // Google Sheet（Apps Script）；未設定 API_URL 則略過
-    // 16 強名單：僅展示模式用內建 16 國；否則嚴格依 Sheet（predictable），沒有則為空
-    PREDICT_TEAMS = CONFIG.DEMO_MODE ? BUILTIN_PREDICT.slice() : (SHEET_PREDICT || []);
-    // 球星：展示模式用內建；否則依 Sheet players（沒有則為空）
-    PLAYERS = CONFIG.DEMO_MODE ? BUILTIN_PLAYERS : (SHEET_PLAYERS || {});
-    setNotice(); tick();
-    loadPredictions(); loadResults();
-    applyResults(); render();
-  }finally{
-    hideLoading();            // 無論成功或失敗都收起載入畫面
-  }
+    const ok = await loadAll();
+    if(ok){
+      PREDICT_TEAMS = CONFIG.DEMO_MODE ? BUILTIN_PREDICT.slice() : (SHEET_PREDICT || []);
+      PLAYERS = CONFIG.DEMO_MODE ? BUILTIN_PLAYERS : (SHEET_PLAYERS || {});
+      loadPredictions(); loadResults(); applyResults(); render();
+    }
+  }catch(e){ /* API 失敗就維持本地畫面 */ }
   await sleep(350); revealSequence();
+  await sleep(600); celebIfNeeded();   // 準決賽／冠軍戰賽前、冠軍慶祝動畫（每個里程碑每個工作階段播一次）
 })();
 </script>
 </body>
